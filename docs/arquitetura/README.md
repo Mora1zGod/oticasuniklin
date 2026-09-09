@@ -9,6 +9,7 @@ Documentação de domínio e dados. Ordem de leitura sugerida:
 | 3 | [Cenário de validação](03-cenario-de-validacao.md) | a regra final do item 12, executável |
 | 4 | [Mapa de menu](04-mapa-de-menu.md) | navegação derivada do domínio |
 | 5 | [Catálogos e enums](05-catalogos-e-enums.md) | classificação completa das listas |
+| 6 | [Tipos TypeScript](06-tipos-typescript.md) | geração por introspecção e garantias em tempo de compilação |
 
 ## Decisões (ADR)
 

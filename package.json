@@ -1,0 +1,12 @@
+{
+  "name": "oticasuniklin",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "types:gen": "./db/tools/validate.sh && python3 db/tools/gen_types.py",
+    "types:check": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.2"
+  }
+}

@@ -16,7 +16,9 @@ distinções confirmadas na auditoria do sistema legado preservadas explicitamen
 db/
   migrations/   0001..0009  schema completo (Postgres 16 / Supabase)
   seeds/        catálogos de plataforma
-  tools/        validate.sh · scenario_item12.sql · supabase_shim.sql
+  tools/        validate.sh · scenario_item12.sql · gen_types.py · supabase_shim.sql
+src/
+  types/        database.ts + domain.ts (gerados do schema) + testes de tipo
 docs/
   arquitetura/  documentação de domínio + 11 ADRs
 ```
@@ -41,6 +43,19 @@ com 7 assertivas que falham em erro se a arquitetura não representar o cenário
 
 Resultado da última execução:
 [`docs/arquitetura/03-cenario-de-validacao.md`](docs/arquitetura/03-cenario-de-validacao.md).
+
+## Tipos TypeScript
+
+```bash
+npm run types:gen     # aplica o schema e regera src/types a partir do banco real
+npm run types:check   # tsc --noEmit (inclui os testes de tipo)
+```
+
+Os tipos são **gerados por introspecção**, nunca escritos à mão, e carregam as
+distinções de domínio para o compilador: a receita não aceita atributo de lente,
+DNP clínica não é atribuível onde se espera DNP de montagem, e venda anônima não
+tem cliente. Detalhes em
+[`docs/arquitetura/06-tipos-typescript.md`](docs/arquitetura/06-tipos-typescript.md).
 
 ## Aplicando no Supabase
 
