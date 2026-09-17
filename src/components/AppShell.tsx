@@ -110,7 +110,7 @@ export function AppShell() {
           )}
         </button>
 
-        <nav className="min-h-0 flex-1 overflow-y-auto px-2.5 pb-3">
+        <nav className="scroll-none min-h-0 flex-1 overflow-y-auto px-2.5 pb-3">
           <NavLink to="/" end className={itemClass} title="Início">
             <IconHome className="size-4.5 shrink-0" />
             {!collapsed && 'Início'}
