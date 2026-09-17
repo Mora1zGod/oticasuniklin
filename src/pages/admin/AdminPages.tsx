@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAppContext } from '@/auth/SessionProvider'
 import { CrudPage } from '@/components/CrudPage'
+export { RolesPage } from './RolesPage'
 import { DataTable } from '@/components/DataTable'
 import { Modal } from '@/components/ui/Modal'
 import {
@@ -398,118 +399,6 @@ export function UsersPage() {
           />
         </div>
       </Modal>
-    </>
-  )
-}
-
-export function RolesPage() {
-  const ctx = useAppContext()
-  const queryClient = useQueryClient()
-  const [error, setError] = useState<string | null>(null)
-
-  const roles = useQuery({
-    queryKey: ['roles-detail', ctx.tenant_id],
-    queryFn: async () => {
-      const { data, error: err } = await supabase
-        .from('roles')
-        .select('*, role_permissions(permission_code)')
-        .order('label')
-      if (err) throw err
-      return data ?? []
-    },
-  })
-
-  const permissions = useQuery({
-    queryKey: ['permissions'],
-    queryFn: async () => {
-      const { data, error: err } = await supabase
-        .from('permissions')
-        .select('*')
-        .order('module')
-      if (err) throw err
-      return data ?? []
-    },
-  })
-
-  const toggle = useMutation({
-    mutationFn: async ({
-      roleId,
-      code,
-      enabled,
-    }: {
-      roleId: string
-      code: string
-      enabled: boolean
-    }) => {
-      setError(null)
-      if (enabled) {
-        const { error: err } = await supabase
-          .from('role_permissions')
-          .insert({ role_id: roleId, permission_code: code })
-        if (err) throw err
-      } else {
-        const { error: err } = await supabase
-          .from('role_permissions')
-          .delete()
-          .eq('role_id', roleId)
-          .eq('permission_code', code)
-        if (err) throw err
-      }
-    },
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['roles-detail'] }),
-    onError: (err) => setError(describeError(err)),
-  })
-
-  if (roles.isLoading || permissions.isLoading) return <Spinner />
-
-  const modules = [...new Set((permissions.data ?? []).map((p) => p.module))]
-
-  return (
-    <>
-      <PageHeader
-        title="Papéis e permissões"
-        subtitle="As permissões efetivas alimentam a RLS do banco, não só a interface."
-      />
-      {error && (
-        <div className="mb-4">
-          <Alert>{error}</Alert>
-        </div>
-      )}
-
-      <div className="space-y-4">
-        {roles.data?.map((role) => {
-          const granted = new Set(role.role_permissions.map((p) => p.permission_code))
-          return (
-            <Card key={role.id} title={role.label}>
-              {modules.map((module) => (
-                <div key={module} className="mb-3">
-                  <p className="mb-1 text-xs font-semibold tracking-wide text-slate-400 uppercase">
-                    {module}
-                  </p>
-                  <div className="grid gap-1 sm:grid-cols-2 lg:grid-cols-3">
-                    {permissions.data
-                      ?.filter((p) => p.module === module)
-                      .map((p) => (
-                        <Checkbox
-                          key={p.code}
-                          label={p.label}
-                          checked={granted.has(p.code)}
-                          onChange={(e) =>
-                            toggle.mutate({
-                              roleId: role.id,
-                              code: p.code,
-                              enabled: e.target.checked,
-                            })
-                          }
-                        />
-                      ))}
-                  </div>
-                </div>
-              ))}
-            </Card>
-          )
-        })}
-      </div>
     </>
   )
 }

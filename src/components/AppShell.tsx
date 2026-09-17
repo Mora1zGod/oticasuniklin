@@ -169,13 +169,18 @@ export function AppShell() {
           {/* Busca global */}
           <button
             onClick={() => setSearchOpen(true)}
+            aria-label="Buscar no sistema"
             className={cx(
-              'flex h-10 min-w-0 flex-1 items-center gap-2 rounded-xl border border-line bg-canvas px-3',
-              'text-sm text-fg-subtle transition-colors hover:border-line-strong sm:max-w-xl',
+              'flex h-10 items-center gap-2 rounded-xl border border-line bg-canvas',
+              'text-sm text-fg-subtle transition-colors hover:border-line-strong',
+              // No celular o cabeçalho é disputado: a busca vira só o ícone.
+              'w-10 shrink-0 justify-center px-0 sm:w-auto sm:min-w-0 sm:flex-1 sm:justify-start sm:px-3 sm:max-w-xl',
             )}
           >
             <IconSearch className="size-4 shrink-0" />
-            <span className="truncate">Buscar cliente, O.S., venda ou tela…</span>
+            <span className="hidden truncate sm:block">
+              Buscar cliente, O.S., venda ou tela…
+            </span>
             <kbd className="ml-auto hidden shrink-0 rounded border border-line px-1.5 py-0.5 text-[0.625rem] text-fg-subtle sm:block">
               Ctrl K
             </kbd>
@@ -451,13 +456,26 @@ const THEME_OPTIONS: {
 ]
 
 function ThemeSwitch() {
-  const { choice, setChoice } = useTheme()
+  const { choice, resolved, toggle, setChoice } = useTheme()
   return (
-    <div
-      className="flex items-center gap-0.5 rounded-lg bg-surface-sunken p-0.5"
-      role="group"
-      aria-label="Tema"
-    >
+    <>
+      <button
+        onClick={toggle}
+        aria-label={resolved === 'dark' ? 'Usar tema claro' : 'Usar tema escuro'}
+        className="rounded-lg p-2 text-fg-muted hover:bg-surface-sunken hover:text-fg sm:hidden"
+      >
+        {resolved === 'dark' ? (
+          <IconSun className="size-5" />
+        ) : (
+          <IconMoon className="size-5" />
+        )}
+      </button>
+
+      <div
+        className="hidden items-center gap-0.5 rounded-lg bg-surface-sunken p-0.5 sm:flex"
+        role="group"
+        aria-label="Tema"
+      >
       {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
         <button
           key={value}
@@ -475,6 +493,7 @@ function ThemeSwitch() {
           <Icon className="size-4" />
         </button>
       ))}
-    </div>
+      </div>
+    </>
   )
 }

@@ -413,3 +413,12 @@ export const IconCalendar = (p: IconProps) => (
     <path d="M3.5 9.5h17M8 3.5v3M16 3.5v3" />
   </Icon>
 )
+
+export const IconTrash = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M4.5 6.5h15" />
+    <path d="M9.5 6.5V4.8A1.3 1.3 0 0 1 10.8 3.5h2.4a1.3 1.3 0 0 1 1.3 1.3v1.7" />
+    <path d="M6.5 6.5 7.4 19a1.6 1.6 0 0 0 1.6 1.5h6a1.6 1.6 0 0 0 1.6-1.5l.9-12.5" />
+    <path d="M10.5 10.5v6M13.5 10.5v6" />
+  </Icon>
+)
