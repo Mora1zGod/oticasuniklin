@@ -9,20 +9,26 @@ Functions).
 
 ## Estado atual
 
-Esta fase entrega a **arquitetura de domínio e o schema do banco**, com as
-distinções confirmadas na auditoria do sistema legado preservadas explicitamente.
+Banco, tipos e aplicação prontos. Falta criar o projeto Supabase e publicar —
+veja [`docs/DEPLOY.md`](docs/DEPLOY.md).
 
 ```
 db/
-  migrations/   0001..0010  schema completo (Postgres 16 / Supabase)
+  migrations/   0001..0011  schema completo (Postgres 16 / Supabase)
   seeds/        catálogos de plataforma
-  tools/        deploy.sh · validate.sh · scenario_*.sql · gen_types.py
+  tools/        deploy.sh · validate.sh · smoke_api.sh · gen_types.py
 src/
   types/        database.ts + domain.ts (gerados do schema) + testes de tipo
+  auth/         sessão, permissões e filial ativa
+  components/   kit de UI, DataTable e CrudPage dirigido por configuração
+  pages/        os 9 módulos do mapa de menu
+dev/            proxy local para rodar o app sem projeto Supabase
 docs/
   DEPLOY.md     como pôr no ar, passo a passo
   arquitetura/  documentação de domínio + 11 ADRs
 ```
+
+![Ordem de serviço com a receita congelada](docs/img/07-os-receita-congelada.png)
 
 ## Pôr no ar
 

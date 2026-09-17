@@ -148,6 +148,46 @@ begin
   raise notice '[4] OK — otica nova vendeu e abriu O.S. sem nenhum seed manual';
 end;
 $$;
+
+-- [4b] O cadastro rapido reporta pendencias sem quebrar, e a promocao para
+-- completo e barrada enquanto faltar campo (ADR-006).
+do $$
+declare
+  v_customer uuid;
+  v_gaps     text[];
+  v_failed   boolean := false;
+begin
+  select id into v_customer from public.customers
+  where display_name = 'Cliente Teste' limit 1;
+
+  v_gaps := public.customer_missing_fields(v_customer, 'complete');
+  if not (v_gaps @> array['cpf','address']) then
+    raise exception '[4b] FALHOU: pendencias esperadas (cpf, address), vieram %', v_gaps;
+  end if;
+
+  if array_length(public.customer_missing_fields(v_customer, 'quick'), 1) is not null then
+    raise exception '[4b] FALHOU: no nivel quick o cadastro ja esta completo';
+  end if;
+
+  -- customers_promotion_guard e um constraint trigger DEFERIDO: a checagem
+  -- acontece no COMMIT. Para o app isso e transparente (o PostgREST commita e
+  -- devolve 400); aqui forcamos a checagem com SET CONSTRAINTS IMMEDIATE.
+  begin
+    update public.customers set record_status = 'complete' where id = v_customer;
+    set constraints public.customers_promotion_guard immediate;
+  exception when others then
+    v_failed := true;
+  end;
+  if not v_failed then
+    raise exception '[4b] FALHOU: promoveu para completo com pendencias';
+  end if;
+  -- desfaz a promocao indevida que ficou pendente na transacao
+  update public.customers set record_status = 'quick' where id = v_customer;
+
+  raise notice '[4b] OK — pendencias reportadas (%) e promocao barrada',
+    array_to_string(v_gaps, ', ');
+end;
+$$;
 commit;
 
 -- [5] convite vira acesso no signup

@@ -166,17 +166,71 @@ select
 
 ---
 
-## O que falta para o sistema estar no ar de verdade
+---
+
+## 7. Publicar o frontend
+
+O app é um SPA Vite. Qualquer host estático serve; o caminho mais curto é a
+Vercel.
+
+```bash
+npm install
+npm run build        # roda tsc e gera dist/
+```
+
+**Vercel** → New Project → importe o repositório:
+
+| Campo | Valor |
+|---|---|
+| Framework preset | Vite |
+| Build command | `npm run build` |
+| Output directory | `dist` |
+| Environment variables | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` |
+
+O app usa rotas de cliente (`/clientes/:id`), então o host precisa devolver
+`index.html` em qualquer caminho. Na Vercel isso é automático com o preset Vite;
+em outro host, configure o fallback de SPA.
+
+Depois do deploy, volte em **Supabase → Authentication → URL Configuration** e
+coloque a URL publicada em `Site URL`.
+
+### Rodando localmente
+
+```bash
+cp .env.example .env.local   # preencha com a URL e a anon key
+npm run dev                  # http://localhost:5173
+```
+
+---
+
+## O que está pronto
 
 | Item | Estado |
 |---|---|
-| Schema, RLS, regras de domínio | ✅ pronto e validado |
-| Onboarding (tenant, admin, convites, padrões) | ✅ pronto e validado |
+| Schema, RLS, regras de domínio | ✅ validado (14 assertivas) |
+| Onboarding (tenant, admin, convites, padrões) | ✅ validado |
 | Tipos TypeScript | ✅ gerados do schema |
-| Deploy do banco | ✅ 1 comando |
-| **Frontend (telas)** | ❌ **não existe** |
+| Deploy do banco | ✅ 1 comando, idempotente |
+| Frontend — 9 módulos | ✅ compila, builda e roda |
+| Consultas do app contra PostgREST | ✅ 49 verificações |
 
-O banco sobe hoje. **O que falta é o aplicativo.**
+**Falta apenas o passo 1: criar o projeto Supabase.** Todo o resto está pronto.
+
+---
+
+## Verificação sem Supabase (opcional)
+
+Dá para exercitar o sistema inteiro na máquina, sem projeto remoto:
+
+```bash
+./db/tools/validate.sh                      # schema + cenários no Postgres local
+TOKEN=<jwt> API=<url> ./db/tools/smoke_api.sh   # as consultas do app, via PostgREST
+node dev/local-api-proxy.mjs                # emula /rest/v1 e /auth/v1 do Supabase
+```
+
+`db/tools/smoke_api.sh` também roda contra o Supabase de verdade — passe a URL
+`https://<ref>.supabase.co/rest/v1` e um token de usuário. Ele escreve dados de
+teste, então use num projeto de staging.
 
 ---
 

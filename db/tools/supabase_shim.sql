@@ -13,12 +13,18 @@ create table if not exists auth.users (
   email text
 );
 
+-- O Supabase resolve auth.uid() a partir do JWT. Aqui aceitamos os dois
+-- formatos: o claim achatado (usado pelos scripts de cenario) e o JSON que o
+-- PostgREST publica em request.jwt.claims.
 create or replace function auth.uid()
 returns uuid
 language sql
 stable
 as $$
-  select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid;
+  select coalesce(
+    nullif(current_setting('request.jwt.claim.sub', true), ''),
+    nullif(current_setting('request.jwt.claims', true), '')::json ->> 'sub'
+  )::uuid;
 $$;
 
 create or replace function auth.role()
