@@ -85,7 +85,20 @@ Esperado: `9 · 6 · 6 · 3`.
 - **Project URL** → `VITE_SUPABASE_URL`
 - **anon public** → `VITE_SUPABASE_ANON_KEY`
 
-> A `service_role` **nunca** vai para o frontend: ela ignora a RLS.
+> ⚠️ **Cuidado com qual chave você copia.** A tela tem duas seções:
+>
+> | Seção | Chave | Vai pro frontend? |
+> |---|---|---|
+> | Publishable key | `sb_publishable_…` | ✅ sim — é esta |
+> | Secret keys | `sb_secret_…` | ❌ **nunca** — ignora a RLS |
+>
+> Se a secreta for usada por engano, o app mostra
+> `Forbidden use of secret API key in browser` e o build trava com uma mensagem
+> explicando. Nesse caso, **revogue a chave secreta no painel**: ela ficou dentro
+> do JavaScript público do site.
+
+> As variáveis `VITE_*` são embutidas no bundle **durante o build**. Trocar o
+> valor depois exige um **redeploy sem cache** para valer.
 
 Na **Vercel** → New Project → importe este repositório:
 

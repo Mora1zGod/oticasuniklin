@@ -19,6 +19,26 @@ const queryClient = new QueryClient({
 const root = document.getElementById('root')
 if (!root) throw new Error('#root não encontrado')
 
+/**
+ * Erro de configuração (variável de ambiente errada ou ausente) acontece antes
+ * do React montar. Sem isto a tela fica branca e o motivo só aparece no console.
+ */
+window.addEventListener('error', (event) => {
+  const message = event.error instanceof Error ? event.error.message : String(event.message)
+  if (!/VITE_SUPABASE/.test(message)) return
+  root.innerHTML = ''
+  const box = document.createElement('div')
+  box.setAttribute(
+    'style',
+    'max-width:40rem;margin:4rem auto;padding:1.5rem;border:1px solid #fecaca;' +
+      'border-radius:.5rem;background:#fef2f2;color:#7f1d1d;font:14px/1.6 system-ui',
+  )
+  box.innerHTML =
+    '<strong style="display:block;margin-bottom:.5rem">Erro de configuração</strong>' +
+    message.replace(/</g, '&lt;')
+  root.appendChild(box)
+})
+
 createRoot(root).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
