@@ -57,7 +57,7 @@ export function CustomerPicker({
 
   if (value && selected.data && !open) {
     return (
-      <div className="flex items-center justify-between rounded-md border border-slate-300 bg-white px-3 py-2">
+      <div className="flex items-center justify-between rounded-md border border-slate-300 bg-surface px-3 py-2">
         <div className="min-w-0">
           <p className="truncate text-sm font-medium text-slate-800">
             {selected.data.display_name}
@@ -98,7 +98,7 @@ export function CustomerPicker({
         onFocus={() => setOpen(true)}
       />
       {open && results.data && results.data.length > 0 && (
-        <ul className="absolute z-20 mt-1 max-h-56 w-full overflow-y-auto rounded-md border border-slate-200 bg-white shadow-lg">
+        <ul className="absolute z-20 mt-1 max-h-56 w-full overflow-y-auto rounded-md border border-slate-200 bg-surface shadow-lg">
           {results.data.map((c) => (
             <li key={c.id}>
               <button
@@ -109,7 +109,7 @@ export function CustomerPicker({
                   setOpen(false)
                 }}
                 className={cx(
-                  'block w-full px-3 py-2 text-left text-sm hover:bg-brand-50',
+                  'block w-full px-3 py-2 text-left text-sm hover:bg-brand-50 dark:hover:bg-brand-500/10',
                 )}
               >
                 <span className="font-medium text-slate-800">{c.display_name}</span>
@@ -124,7 +124,7 @@ export function CustomerPicker({
         </ul>
       )}
       {open && search.trim().length >= 2 && results.data?.length === 0 && (
-        <p className="absolute z-20 mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs text-slate-500 shadow-lg">
+        <p className="absolute z-20 mt-1 w-full rounded-md border border-slate-200 bg-surface px-3 py-2 text-xs text-slate-500 shadow-lg">
           Nenhum cliente encontrado.
         </p>
       )}

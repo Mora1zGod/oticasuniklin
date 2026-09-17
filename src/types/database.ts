@@ -4333,6 +4333,106 @@ export type Database = {
           },
         ]
       }
+      /** Identidade visual da otica (white label). Leitura anonima por ser exibida na tela de login, antes da sessao existir — guarda apenas dado publico. */
+      tenant_branding: {
+        Row: {
+          tenant_id: string
+          company_name: string | null
+          short_name: string | null
+          subtitle: string | null
+          logo_url: string | null
+          logo_icon_url: string | null
+          favicon_url: string | null
+          primary_color: string | null
+          secondary_color: string | null
+          accent_color: string | null
+          background_color: string | null
+          card_color: string | null
+          text_color: string | null
+          login_image_url: string | null
+          login_background_url: string | null
+          login_headline: string | null
+          login_highlight: string | null
+          login_description: string | null
+          benefit_1: string | null
+          benefit_2: string | null
+          benefit_3: string | null
+          login_footnote: string | null
+          updated_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          tenant_id: string
+          company_name?: string | null
+          short_name?: string | null
+          subtitle?: string | null
+          logo_url?: string | null
+          logo_icon_url?: string | null
+          favicon_url?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          accent_color?: string | null
+          background_color?: string | null
+          card_color?: string | null
+          text_color?: string | null
+          login_image_url?: string | null
+          login_background_url?: string | null
+          login_headline?: string | null
+          login_highlight?: string | null
+          login_description?: string | null
+          benefit_1?: string | null
+          benefit_2?: string | null
+          benefit_3?: string | null
+          login_footnote?: string | null
+          updated_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          tenant_id?: string
+          company_name?: string | null
+          short_name?: string | null
+          subtitle?: string | null
+          logo_url?: string | null
+          logo_icon_url?: string | null
+          favicon_url?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          accent_color?: string | null
+          background_color?: string | null
+          card_color?: string | null
+          text_color?: string | null
+          login_image_url?: string | null
+          login_background_url?: string | null
+          login_headline?: string | null
+          login_highlight?: string | null
+          login_description?: string | null
+          benefit_1?: string | null
+          benefit_2?: string | null
+          benefit_3?: string | null
+          login_footnote?: string | null
+          updated_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'tenant_branding_tenant_id_fkey'
+            isOneToOne: true
+            columns: ['tenant_id']
+            referencedRelation: 'tenants'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tenant_branding_updated_by_fkey'
+            isOneToOne: false
+            columns: ['updated_by']
+            referencedRelation: 'app_users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       /** Empresa contratante do SaaS. Fronteira de isolamento de dados (RLS). */
       tenants: {
         Row: {
@@ -4585,6 +4685,11 @@ export type Database = {
       bootstrap_tenant: {
         Args: { p_slug: string; p_legal_name: string; p_trade_name: string; p_branch_name?: string; p_admin_name?: string | null; p_tax_document?: string | null; p_auth_user_id?: string | null }
         Returns: string
+      }
+      /** branding_for_login(p_slug text DEFAULT NULL::text) returns TABLE(tenant_id uuid, slug text, trade_name text, company_name text, short_name text, subtitle text, logo_url text, logo_icon_url text, favicon_url text, primary_color text, secondary_color text, accent_color text, background_color text, card_color text, text_color text, login_image_url text, login_background_url text, login_headline text, login_highlight text, login_description text, benefit_1 text, benefit_2 text, benefit_3 text, login_footnote text) */
+      branding_for_login: {
+        Args: { p_slug?: string | null }
+        Returns: { tenant_id: string; slug: string; trade_name: string; company_name: string; short_name: string; subtitle: string; logo_url: string; logo_icon_url: string; favicon_url: string; primary_color: string; secondary_color: string; accent_color: string; background_color: string; card_color: string; text_color: string; login_image_url: string; login_background_url: string; login_headline: string; login_highlight: string; login_description: string; benefit_1: string; benefit_2: string; benefit_3: string; login_footnote: string }[]
       }
       /** current_app_user_id() returns uuid */
       current_app_user_id: {

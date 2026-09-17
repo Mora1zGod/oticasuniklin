@@ -57,6 +57,7 @@ import {
   RolesPage,
   UsersPage,
 } from '@/pages/admin/AdminPages'
+import { BrandingPage } from '@/pages/admin/BrandingPage'
 
 export function App() {
   return (
@@ -121,6 +122,7 @@ export function App() {
 
         {/* Administração */}
         <Route path="admin/empresa" element={<CompanyPage />} />
+        <Route path="admin/identidade-visual" element={<BrandingPage />} />
         <Route path="admin/filiais" element={<BranchesPage />} />
         <Route path="admin/usuarios" element={<UsersPage />} />
         <Route path="admin/papeis" element={<RolesPage />} />

@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { SessionProvider } from '@/auth/SessionProvider'
+import { ThemeProvider } from '@/theme/ThemeProvider'
+import { BrandingProvider } from '@/branding/BrandingProvider'
 import { App } from './App'
 import './index.css'
 
@@ -43,9 +45,13 @@ createRoot(root).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <SessionProvider>
-          <App />
-        </SessionProvider>
+        <ThemeProvider>
+          <SessionProvider>
+            <BrandingProvider>
+              <App />
+            </BrandingProvider>
+          </SessionProvider>
+        </ThemeProvider>
       </BrowserRouter>
     </QueryClientProvider>
   </StrictMode>,

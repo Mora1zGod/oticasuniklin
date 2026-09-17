@@ -1,6 +1,8 @@
 import { useState, type ComponentType, type SVGProps } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useSession } from '@/auth/SessionProvider'
+import { useBranding } from '@/branding/BrandingProvider'
+import { useTheme, type ThemeChoice } from '@/theme/ThemeProvider'
 import { Select, cx } from './ui/primitives'
 import {
   IconBox,
@@ -11,8 +13,11 @@ import {
   IconHome,
   IconLogout,
   IconMenu,
+  IconMonitor,
+  IconMoon,
   IconMoney,
   IconSettings,
+  IconSun,
   IconUsers,
   IconWrench,
 } from './ui/icons'
@@ -104,6 +109,7 @@ const NAV: NavGroup[] = [
     icon: IconSettings,
     items: [
       { to: '/admin/empresa', label: 'Empresa', permission: 'admin.manage' },
+      { to: '/admin/identidade-visual', label: 'Identidade visual', permission: 'admin.manage' },
       { to: '/admin/filiais', label: 'Filiais', permission: 'admin.manage' },
       { to: '/admin/usuarios', label: 'Usuários e convites', permission: 'admin.manage' },
       { to: '/admin/papeis', label: 'Papéis e permissões', permission: 'admin.manage' },
@@ -120,8 +126,45 @@ const initials = (name: string): string =>
     .map((part) => part[0]?.toUpperCase() ?? '')
     .join('')
 
+/** Claro, escuro ou o que o sistema operacional estiver usando. */
+const THEME_OPTIONS: { value: ThemeChoice; label: string; icon: ComponentType<SVGProps<SVGSVGElement>> }[] = [
+  { value: 'light', label: 'Tema claro', icon: IconSun },
+  { value: 'dark', label: 'Tema escuro', icon: IconMoon },
+  { value: 'system', label: 'Acompanhar o sistema', icon: IconMonitor },
+]
+
+function ThemeSwitch() {
+  const { choice, setChoice } = useTheme()
+  return (
+    <div
+      className="flex items-center gap-0.5 rounded-lg bg-surface-sunken p-0.5"
+      role="group"
+      aria-label="Tema"
+    >
+      {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
+        <button
+          key={value}
+          onClick={() => setChoice(value)}
+          aria-label={label}
+          aria-pressed={choice === value}
+          title={label}
+          className={cx(
+            'rounded-md p-1.5 transition-colors',
+            choice === value
+              ? 'bg-surface text-fg shadow-xs'
+              : 'text-fg-subtle hover:text-fg',
+          )}
+        >
+          <Icon className="size-4" />
+        </button>
+      ))}
+    </div>
+  )
+}
+
 export function AppShell() {
   const { context, branchId, setBranchId, can, signOut } = useSession()
+  const { branding } = useBranding()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -138,17 +181,17 @@ export function AppShell() {
     cx(
       'relative flex items-center rounded-md py-1.5 pr-2.5 pl-8 text-[0.8125rem] transition-colors',
       isActive
-        ? 'bg-white/10 font-medium text-white'
-        : 'text-ink-300 hover:bg-white/5 hover:text-white',
+        ? 'bg-surface/10 font-medium text-white'
+        : 'text-fg-subtle hover:bg-surface/5 hover:text-white',
     )
 
   return (
-    <div className="flex h-full flex-col bg-ink-50">
+    <div className="flex h-full flex-col bg-canvas">
       {/* ---------------------------------------------------------------- */}
-      <header className="z-30 flex h-14 shrink-0 items-center gap-3 border-b border-ink-100 bg-white px-3 sm:px-4">
+      <header className="z-30 flex h-14 shrink-0 items-center gap-3 border-b border-line bg-surface px-3 sm:px-4">
         <button
           onClick={() => setMenuOpen((v) => !v)}
-          className="rounded-md p-1.5 text-ink-500 hover:bg-ink-100 lg:hidden"
+          className="rounded-md p-1.5 text-fg-muted hover:bg-surface-sunken lg:hidden"
           aria-label="Abrir menu"
         >
           {menuOpen ? <IconClose className="size-5" /> : <IconMenu className="size-5" />}
@@ -158,20 +201,30 @@ export function AppShell() {
           onClick={() => navigate('/')}
           className="flex items-center gap-2.5 text-left"
         >
-          <span className="flex size-8 items-center justify-center rounded-lg bg-ink-900 text-white">
-            <IconGlasses className="size-4.5" />
-          </span>
-          <span className="hidden sm:block">
-            <span className="block text-sm leading-tight font-semibold tracking-tight text-ink-900">
-              {context.tenant.trade_name}
+          {branding.logoIconUrl ? (
+            <img
+              src={branding.logoIconUrl}
+              alt=""
+              className="size-8 rounded-lg object-contain"
+            />
+          ) : (
+            <span className="flex size-8 items-center justify-center rounded-lg bg-sidebar text-white">
+              <IconGlasses className="size-4.5" />
             </span>
-            <span className="block text-[0.6875rem] leading-tight text-ink-400">
-              gestão para óticas
+          )}
+          <span className="hidden sm:block">
+            <span className="block text-sm leading-tight font-semibold tracking-tight text-fg">
+              {branding.companyName}
+            </span>
+            <span className="block text-[0.6875rem] leading-tight text-fg-subtle">
+              {branding.subtitle}
             </span>
           </span>
         </button>
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
+          <ThemeSwitch />
+
           {context.branches.length > 1 ? (
             <Select
               value={branchId ?? ''}
@@ -186,24 +239,24 @@ export function AppShell() {
               ))}
             </Select>
           ) : (
-            <span className="hidden rounded-md bg-ink-100 px-2.5 py-1 text-xs font-medium text-ink-600 md:block">
+            <span className="hidden rounded-md bg-surface-sunken px-2.5 py-1 text-xs font-medium text-fg-muted md:block">
               {branch?.trade_name}
             </span>
           )}
 
-          <div className="flex items-center gap-2 border-l border-ink-100 pl-2 sm:pl-3">
-            <span className="flex size-8 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700">
+          <div className="flex items-center gap-2 border-l border-line pl-2 sm:pl-3">
+            <span className="flex size-8 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700 dark:bg-brand-500/20 dark:text-brand-200">
               {initials(context.full_name)}
             </span>
             <div className="hidden leading-tight lg:block">
-              <p className="text-xs font-medium text-ink-800">{context.full_name}</p>
-              <p className="text-[0.6875rem] text-ink-400">
+              <p className="text-xs font-medium text-fg">{context.full_name}</p>
+              <p className="text-[0.6875rem] text-fg-subtle">
                 {context.is_tenant_admin ? 'Administrador' : (branch?.role ?? '')}
               </p>
             </div>
             <button
               onClick={() => void signOut()}
-              className="rounded-md p-1.5 text-ink-400 transition-colors hover:bg-ink-100 hover:text-ink-700"
+              className="rounded-md p-1.5 text-fg-subtle transition-colors hover:bg-surface-sunken hover:text-fg"
               aria-label="Sair"
               title="Sair"
             >
@@ -217,14 +270,14 @@ export function AppShell() {
         {/* -------------------------------------------------------------- */}
         {menuOpen && (
           <div
-            className="fixed inset-0 z-20 bg-ink-950/40 lg:hidden"
+            className="fixed inset-0 z-20 bg-sidebar/60 lg:hidden"
             onClick={() => setMenuOpen(false)}
           />
         )}
 
         <aside
           className={cx(
-            'z-20 w-62 shrink-0 overflow-y-auto bg-ink-900 px-2.5 py-3',
+            'z-20 w-62 shrink-0 overflow-y-auto bg-sidebar px-2.5 py-3',
             'max-lg:fixed max-lg:inset-y-14 max-lg:left-0 max-lg:shadow-2xl',
             menuOpen ? 'block' : 'hidden lg:block',
           )}
@@ -237,8 +290,8 @@ export function AppShell() {
               cx(
                 'mb-3 flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors',
                 isActive
-                  ? 'bg-white/10 font-medium text-white'
-                  : 'text-ink-300 hover:bg-white/5 hover:text-white',
+                  ? 'bg-surface/10 font-medium text-white'
+                  : 'text-fg-subtle hover:bg-surface/5 hover:text-white',
               )
             }
           >
@@ -250,7 +303,7 @@ export function AppShell() {
             const GroupIcon = group.icon
             return (
               <div key={group.label} className="mb-4">
-                <p className="mb-1 flex items-center gap-2 px-2.5 text-[0.6875rem] font-semibold tracking-wider text-ink-400 uppercase">
+                <p className="mb-1 flex items-center gap-2 px-2.5 text-[0.6875rem] font-semibold tracking-wider text-fg-subtle uppercase">
                   <GroupIcon className="size-3.5 shrink-0" />
                   {group.label}
                 </p>
@@ -278,8 +331,8 @@ export function AppShell() {
             )
           })}
 
-          <p className="px-2.5 pt-2 pb-1 text-[0.625rem] text-ink-500">
-            Óticas Uniklin · {context.tenant.slug}
+          <p className="px-2.5 pt-2 pb-1 text-[0.625rem] text-fg-muted">
+            {branding.shortName} · {context.tenant.slug}
           </p>
         </aside>
 

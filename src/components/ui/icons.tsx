@@ -144,3 +144,23 @@ export const IconAlert = (p: IconProps) => (
     <path d="M10.3 3.9 2.6 17.5A2 2 0 0 0 4.3 20.5h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
   </Icon>
 )
+
+export const IconSun = (p: IconProps) => (
+  <Icon {...p}>
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2.5v2M12 19.5v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2.5 12h2M19.5 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
+  </Icon>
+)
+
+export const IconMoon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M20 14.2A8.2 8.2 0 0 1 9.8 4 8.2 8.2 0 1 0 20 14.2Z" />
+  </Icon>
+)
+
+export const IconMonitor = (p: IconProps) => (
+  <Icon {...p}>
+    <rect x="2.5" y="4" width="19" height="12.5" rx="2" />
+    <path d="M9 20.5h6M12 16.5v4" />
+  </Icon>
+)

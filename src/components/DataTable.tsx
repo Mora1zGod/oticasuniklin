@@ -53,8 +53,8 @@ export function DataTable<T>({
               <th
                 key={col.key}
                 className={cx(
-                  'border-b border-ink-100 bg-ink-50/60 px-3.5 py-2.5',
-                  'text-[0.6875rem] font-semibold tracking-wider text-ink-500 uppercase',
+                  'border-b border-line bg-surface-sunken px-3.5 py-2.5',
+                  'text-[0.6875rem] font-semibold tracking-wider text-fg-muted uppercase',
                   col.numeric && 'text-right',
                 )}
               >
@@ -63,21 +63,21 @@ export function DataTable<T>({
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-ink-100/80">
+        <tbody className="divide-y divide-line">
           {rows.map((row) => (
             <tr
               key={rowKey(row)}
               onClick={onRowClick ? () => onRowClick(row) : undefined}
               className={cx(
                 'transition-colors',
-                onRowClick && 'cursor-pointer hover:bg-brand-50/50',
+                onRowClick && 'cursor-pointer hover:bg-brand-50/50 dark:hover:bg-brand-500/8',
               )}
             >
               {columns.map((col) => (
                 <td
                   key={col.key}
                   className={cx(
-                    'px-3.5 py-2.5 align-middle text-ink-700',
+                    'px-3.5 py-2.5 align-middle text-fg',
                     col.numeric && 'tnum text-right',
                     col.className,
                   )}

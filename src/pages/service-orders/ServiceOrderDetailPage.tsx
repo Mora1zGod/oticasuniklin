@@ -259,7 +259,7 @@ export function ServiceOrderDetailPage() {
                 </table>
               </div>
 
-              <div className="rounded-md bg-slate-50 px-3 py-2 text-xs text-slate-600">
+              <div className="rounded-md bg-surface-sunken px-3 py-2 text-xs text-fg-muted">
                 Cópia congelada da receita de {formatDate(o.prescription_issued_at)}
                 {o.prescriber_name ? `, emitida por ${o.prescriber_name}` : ''}
                 {o.source_revision ? ` (versão ${o.source_revision})` : ''}.{' '}

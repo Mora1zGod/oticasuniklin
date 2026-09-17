@@ -231,8 +231,8 @@ export function CustomerRelationshipsTab({
                   key={c.id}
                   onClick={() => setForm({ ...form, related_customer_id: c.id })}
                   className={
-                    'block w-full px-3 py-2 text-left text-sm hover:bg-brand-50 ' +
-                    (form.related_customer_id === c.id ? 'bg-brand-50 font-medium' : '')
+                    'block w-full px-3 py-2 text-left text-sm hover:bg-brand-50 dark:hover:bg-brand-500/10 ' +
+                    (form.related_customer_id === c.id ? 'bg-brand-50 font-medium dark:bg-brand-500/15' : '')
                   }
                 >
                   {c.display_name}

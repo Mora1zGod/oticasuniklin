@@ -27,7 +27,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   if (context?.status !== 'ready') {
     return (
       <div className="flex h-full items-center justify-center p-8">
-        <div className="max-w-md rounded-lg border border-amber-300 bg-amber-50 p-6 text-sm text-amber-900">
+        <div className="max-w-md rounded-lg border border-amber-300 bg-amber-50 p-6 text-sm text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
           Não foi possível carregar o contexto da sua ótica. Recarregue a página ou
           entre novamente.
         </div>

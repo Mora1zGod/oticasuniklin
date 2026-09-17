@@ -9,14 +9,14 @@ import { formatDate, formatMoney, today } from '@/lib/format'
 type StatTone = 'neutral' | 'warning' | 'danger' | 'success'
 
 const STAT_ACCENT: Record<StatTone, string> = {
-  neutral: 'bg-ink-200',
+  neutral: 'bg-line-strong',
   success: 'bg-emerald-500',
   warning: 'bg-amber-500',
   danger: 'bg-red-500',
 }
 
 const STAT_VALUE: Record<StatTone, string> = {
-  neutral: 'text-ink-900',
+  neutral: 'text-fg',
   success: 'text-emerald-600',
   warning: 'text-amber-600',
   danger: 'text-red-600',
@@ -38,17 +38,17 @@ function Stat({
   const body = (
     <div
       className={
-        'relative h-full overflow-hidden rounded-card border border-ink-100 bg-white p-4 ' +
+        'relative h-full overflow-hidden rounded-card border border-line bg-surface p-4 ' +
         'shadow-sm shadow-ink-900/4 transition-colors ' +
-        (to ? 'hover:border-brand-200 hover:bg-brand-50/30' : '')
+        (to ? 'hover:border-brand-200 hover:bg-brand-50/30 dark:hover:border-brand-500/40 dark:hover:bg-brand-500/8' : '')
       }
     >
       <span className={'absolute inset-x-0 top-0 h-0.5 ' + STAT_ACCENT[tone]} />
-      <p className="text-xs font-medium text-ink-500">{label}</p>
+      <p className="text-xs font-medium text-fg-muted">{label}</p>
       <p className={'tnum mt-1.5 text-[1.75rem] leading-none font-semibold ' + STAT_VALUE[tone]}>
         {value}
       </p>
-      {hint && <p className="mt-1.5 text-[0.6875rem] text-ink-400">{hint}</p>}
+      {hint && <p className="mt-1.5 text-[0.6875rem] text-fg-subtle">{hint}</p>}
     </div>
   )
   return to ? (
@@ -186,7 +186,7 @@ export function DashboardPage() {
           {aniversariantes.isLoading ? (
             <Spinner />
           ) : aniversariantes.data && aniversariantes.data.length > 0 ? (
-            <ul className="divide-y divide-ink-100 text-sm">
+            <ul className="divide-y divide-line text-sm">
               {aniversariantes.data.map((row) => (
                 <li key={row.customer_id} className="flex justify-between py-2">
                   <Link
@@ -195,14 +195,14 @@ export function DashboardPage() {
                   >
                     {row.customers?.display_name ?? '—'}
                   </Link>
-                  <span className="tnum text-ink-400">
+                  <span className="tnum text-fg-subtle">
                     {row.birth_date?.slice(8, 10)}/{row.birth_date?.slice(5, 7)}
                   </span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="py-4 text-sm text-ink-400">Nenhum aniversariante este mês.</p>
+            <p className="py-4 text-sm text-fg-subtle">Nenhum aniversariante este mês.</p>
           )}
         </Card>
 
@@ -217,14 +217,14 @@ export function DashboardPage() {
               <Link
                 key={to}
                 to={to!}
-                className="flex items-center justify-between rounded-lg border border-ink-100 px-3 py-2.5 text-sm text-ink-700 transition-colors hover:border-brand-200 hover:bg-brand-50/40 hover:text-brand-800"
+                className="flex items-center justify-between rounded-lg border border-line px-3 py-2.5 text-sm text-fg transition-colors hover:border-brand-200 hover:bg-brand-50/40 hover:text-brand-800 dark:hover:border-brand-500/40 dark:hover:bg-brand-500/10 dark:hover:text-brand-200"
               >
                 {label}
-                <span className="text-ink-300">›</span>
+                <span className="text-fg-subtle">›</span>
               </Link>
             ))}
           </div>
-          <div className="mt-4 flex flex-wrap gap-1.5 border-t border-ink-100 pt-3">
+          <div className="mt-4 flex flex-wrap gap-1.5 border-t border-line pt-3">
             {ctx.is_tenant_admin && <Badge tone="info" dot>Administrador</Badge>}
             {ctx.is_salesperson && <Badge tone="neutral" dot>Vendedor</Badge>}
           </div>

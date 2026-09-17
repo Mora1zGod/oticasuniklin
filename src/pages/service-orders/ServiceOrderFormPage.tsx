@@ -227,7 +227,7 @@ export function ServiceOrderFormPage() {
           </div>
 
           {chosen && (
-            <div className="mt-3 rounded-md bg-slate-50 px-3 py-2 text-sm">
+            <div className="mt-3 rounded-md bg-surface-sunken px-3 py-2 text-sm">
               <p className="mb-1 text-xs font-medium text-slate-500 uppercase">
                 Grau que será congelado nesta O.S.
               </p>

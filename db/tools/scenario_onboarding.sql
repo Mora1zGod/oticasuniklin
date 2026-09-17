@@ -256,6 +256,76 @@ end;
 $$;
 commit;
 
+-- [7] Identidade visual: publica para ler, restrita para escrever (0012)
+begin;
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '10000000-0000-0000-0000-000000000001', true);
+insert into public.tenant_branding (tenant_id, company_name, primary_color, login_headline)
+values (public.current_tenant_id(), 'Otica Central', '#1d4ed8', 'Mais visao para o seu negocio.');
+commit;
+
+-- o visitante do login nao tem sessao: precisa enxergar a marca mesmo assim
+begin;
+set local role anon;
+do $$
+declare
+  v_count integer;
+  v_brand record;
+  v_failed boolean := false;
+begin
+  select count(*) into v_count from public.tenant_branding;
+  if v_count <> 1 then
+    raise exception '[7] FALHOU: anonimo viu % linhas de branding (esperado 1)', v_count;
+  end if;
+
+  select * into v_brand from public.branding_for_login(null);
+  if v_brand.company_name is distinct from 'Otica Central' then
+    raise exception '[7] FALHOU: branding_for_login nao devolveu a marca';
+  end if;
+
+  -- e nao pode enxergar mais nada
+  begin
+    perform 1 from public.customers limit 1;
+    if found then
+      raise exception '[7] FALHOU: anonimo enxergou clientes';
+    end if;
+  exception when insufficient_privilege then
+    null;  -- sem grant: melhor ainda
+  end;
+
+  begin
+    update public.tenant_branding set company_name = 'Invadido';
+    get diagnostics v_count = row_count;
+    if v_count > 0 then
+      raise exception '[7] FALHOU: anonimo alterou a identidade visual';
+    end if;
+  exception when insufficient_privilege then
+    v_failed := true;
+  end;
+
+  raise notice '[7] OK — marca visivel no login, sem vazar dado nem aceitar escrita anonima';
+end;
+$$;
+commit;
+
+-- vendedora (sem admin.manage) nao personaliza a otica
+begin;
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '10000000-0000-0000-0000-000000000004', true);
+do $$
+declare
+  v_rows integer;
+begin
+  update public.tenant_branding set company_name = 'Trocado pela vendedora';
+  get diagnostics v_rows = row_count;
+  if v_rows > 0 then
+    raise exception '[7] FALHOU: usuario sem admin.manage alterou a identidade visual';
+  end if;
+  raise notice '[7] OK — sem admin.manage nao altera identidade visual';
+end;
+$$;
+commit;
+
 begin;
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '10000000-0000-0000-0000-000000000003', true);

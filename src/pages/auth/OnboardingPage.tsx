@@ -64,7 +64,7 @@ export function OnboardingPage() {
   }
 
   return (
-    <div className="flex min-h-full items-center justify-center bg-slate-100 p-4">
+    <div className="flex min-h-full items-center justify-center bg-canvas p-4">
       <div className="w-full max-w-lg">
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-semibold text-slate-900">Vamos criar sua ótica</h1>
@@ -76,7 +76,7 @@ export function OnboardingPage() {
 
         <form
           onSubmit={submit}
-          className="space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+          className="space-y-4 rounded-lg border border-slate-200 bg-surface p-6 shadow-sm"
         >
           {error && <Alert>{error}</Alert>}
 
