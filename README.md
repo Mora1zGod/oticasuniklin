@@ -40,6 +40,9 @@ export DATABASE_URL="postgresql://postgres.<ref>:<senha>@<host>:5432/postgres"
 Passo a passo completo (criar o projeto Supabase, aplicar o schema, criar a
 primeira ótica, convidar a equipe): [`docs/DEPLOY.md`](docs/DEPLOY.md).
 
+Sem `psql` na máquina? Dá para instalar só pelo painel, colando SQL:
+[`docs/INSTALAR-PELO-PAINEL.md`](docs/INSTALAR-PELO-PAINEL.md).
+
 ## Começando pela documentação
 
 Leia [`docs/arquitetura/01-distincoes-de-dominio.md`](docs/arquitetura/01-distincoes-de-dominio.md).

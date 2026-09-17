@@ -27,6 +27,10 @@ postgresql://postgres.<ref>:<senha>@aws-0-sa-east-1.pooler.supabase.com:5432/pos
 
 ---
 
+> **Sem `psql` na máquina?** Há um caminho só pelo painel, colando SQL:
+> [`docs/INSTALAR-PELO-PAINEL.md`](INSTALAR-PELO-PAINEL.md). O resultado é o
+> mesmo; o `deploy.sh` continua funcionando depois, para as atualizações.
+
 ## 2. Aplicar o schema — 1 comando
 
 ```bash
