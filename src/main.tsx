@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { SessionProvider } from '@/auth/SessionProvider'
 import { ThemeProvider } from '@/theme/ThemeProvider'
 import { BrandingProvider } from '@/branding/BrandingProvider'
+import { resolveTenantBase } from '@/branding/branding'
 import { registerServiceWorker } from '@/pwa/register'
 import { App } from './App'
 import './index.css'
@@ -49,7 +50,7 @@ window.addEventListener('error', (event) => {
 createRoot(root).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <BrowserRouter basename={resolveTenantBase().basename}>
         <ThemeProvider>
           <SessionProvider>
             <BrandingProvider>

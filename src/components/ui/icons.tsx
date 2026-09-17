@@ -406,3 +406,10 @@ export const IconCoin = (p: IconProps) => (
     <path d="M12 6.8v10.4" />
   </Icon>
 )
+
+export const IconCalendar = (p: IconProps) => (
+  <Icon {...p}>
+    <rect x="3.5" y="5" width="17" height="15.5" rx="2" />
+    <path d="M3.5 9.5h17M8 3.5v3M16 3.5v3" />
+  </Icon>
+)

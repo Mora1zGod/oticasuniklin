@@ -61,6 +61,16 @@
   --color-sidebar: var(--s-sidebar);
   --color-sidebar-fg: var(--s-sidebar-fg);
 
+  /* --- Séries de gráfico ------------------------------------------------- */
+  /* Ordem fixa: a cor acompanha a categoria, nunca a posição na lista. Os dois
+     modos foram validados (separação para daltonismo e contraste com o fundo);
+     por isso cada fatia também leva rótulo e número na legenda. */
+  --color-series-1: var(--s-series-1);
+  --color-series-2: var(--s-series-2);
+  --color-series-3: var(--s-series-3);
+  --color-series-4: var(--s-series-4);
+  --color-series-5: var(--s-series-5);
+
   --font-sans: 'Inter var', 'Inter', ui-sans-serif, system-ui, -apple-system,
     'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
@@ -92,6 +102,12 @@
   --s-sidebar-fg: oklch(0.86 0.02 250);
 
   --shadow-tint: 262 30% 10%;
+
+  --s-series-1: #2a78d6;
+  --s-series-2: #eb6834;
+  --s-series-3: #1baf7a;
+  --s-series-4: #eda100;
+  --s-series-5: #e87ba4;
 }
 
 /* --- Tema escuro ---------------------------------------------------------- */
@@ -117,6 +133,14 @@
   --s-fg-subtle: oklch(0.58 0.03 254);
   --s-sidebar: oklch(0.125 0.02 264);
   --s-sidebar-fg: oklch(0.80 0.025 252);
+
+  /* Mesmas cinco cores, repassadas para o fundo escuro — não é o claro
+     invertido, é a mesma escala com outro degrau. */
+  --s-series-1: #3987e5;
+  --s-series-2: #d95926;
+  --s-series-3: #199e70;
+  --s-series-4: #c98500;
+  --s-series-5: #d55181;
 }
 
 html,

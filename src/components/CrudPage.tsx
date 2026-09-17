@@ -1,5 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { CepField } from './CepField'
 import { DataTable, type Column } from './DataTable'
 import { Modal } from './ui/Modal'
 import {
@@ -25,7 +26,16 @@ import { useAppContext } from '@/auth/SessionProvider'
 export type CrudField = {
   name: string
   label: string
-  type?: 'text' | 'number' | 'date' | 'checkbox' | 'select' | 'textarea' | 'email'
+  type?:
+    | 'text'
+    | 'number'
+    | 'date'
+    | 'checkbox'
+    | 'select'
+    | 'textarea'
+    | 'email'
+    /** CEP que preenche logradouro, bairro, cidade e UF do próprio formulário. */
+    | 'cep'
   required?: boolean
   hint?: string
   placeholder?: string
@@ -237,6 +247,30 @@ export function CrudPage<T extends TableName>(config: CrudConfig<T>) {
             const value = form[field.name]
             const set = (v: string | number | boolean) =>
               setForm((prev) => ({ ...prev, [field.name]: v }))
+
+            // O CEP escreve em outros campos do mesmo formulário, então não
+            // cabe no molde genérico abaixo.
+            if (field.type === 'cep') {
+              return (
+                <CepField
+                  key={field.name}
+                  label={field.label}
+                  className={`col-span-12 ${SPAN_CLASS[field.span ?? 6] ?? 'sm:col-span-6'}`}
+                  value={String(value ?? '')}
+                  onChange={set}
+                  onFound={(found) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      [field.name]: found.zipCode,
+                      street: found.street || prev['street'] || '',
+                      district: found.district || prev['district'] || '',
+                      city: found.city || prev['city'] || '',
+                      state_code: found.stateCode || prev['state_code'] || '',
+                    }))
+                  }
+                />
+              )
+            }
 
             return (
               <Field

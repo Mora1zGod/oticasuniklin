@@ -126,25 +126,83 @@ export function brandingCssVars(branding: Branding): Record<string, string> {
 }
 
 /**
- * Qual ótica é esta? A tela de login não tem sessão, então o slug vem do
- * subdomínio (uniklin.sistema.com) ou de ?otica=. Sem nenhum dos dois, o banco
- * resolve sozinho quando a instalação tem uma única ótica.
+ * Qual ótica é esta?
+ *
+ * Cada ótica tem o próprio endereço dentro do produto, das duas formas:
+ *
+ *     uniklin.com/nomedaotica/clientes     ← caminho
+ *     nomedaotica.uniklin.com/clientes     ← subdomínio
+ *                 ^^^^^^^^^^^
+ *
+ * No caminho, o primeiro trecho é o identificador da ótica e vira a base de
+ * navegação do app (o React Router recebe como `basename`), então as telas
+ * continuam escrevendo "/clientes" e a ótica entra sozinha na URL. No
+ * subdomínio a base é a raiz, porque a ótica já está no host.
+ *
+ * Como saber se "/clientes" é uma ótica chamada "clientes" ou a tela de
+ * clientes sem ótica no endereço? Pela lista abaixo: são as rotas que o app
+ * publica na raiz. O que não estiver nela é nome de ótica.
  */
-export function resolveTenantSlug(): string | null {
-  if (typeof window === 'undefined') return null
+const APP_ROUTES = [
+  'entrar',
+  'primeiro-acesso',
+  'clientes',
+  'optica',
+  'comercial',
+  'producao',
+  'ordens-de-servico',
+  'laboratorio',
+  'produtos',
+  'estoque',
+  'financeiro',
+  'admin',
+]
 
+/** Hospedeiros em que o primeiro rótulo não é nome de ótica. */
+const GENERIC_HOSTS = [
+  'www',
+  'localhost',
+  'app',
+  'sistema',
+  'uniklin',
+  'oticasuniklin',
+]
+
+export type TenantBase = {
+  /** Identificador da ótica, ou null quando o endereço não traz nenhum. */
+  slug: string | null
+  /** Prefixo de todas as rotas: '/nomedaotica' ou '/'. */
+  basename: string
+}
+
+export function resolveTenantBase(pathname?: string): TenantBase {
+  if (typeof window === 'undefined') return { slug: null, basename: '/' }
+
+  const path = pathname ?? window.location.pathname
+  const first = path.split('/').filter(Boolean)[0]
+
+  if (first && !APP_ROUTES.includes(first)) {
+    return { slug: decodeURIComponent(first), basename: '/' + first }
+  }
+
+  // Sem ótica no caminho: ainda aceitamos subdomínio e ?otica=, que servem
+  // para domínio próprio e para teste.
   const fromQuery = new URLSearchParams(window.location.search).get('otica')
-  if (fromQuery) return fromQuery
+  if (fromQuery) return { slug: fromQuery, basename: '/' }
 
   const host = window.location.hostname
-  const ignored = ['www', 'localhost', 'app', 'sistema']
+  // 127.0.0.1 também tem quatro rótulos: endereço numérico não é subdomínio.
+  const isIp = /^[\d.]+$/.test(host)
   const parts = host.split('.')
-  // domínio próprio com subdomínio: uniklin.sistema.com.br
-  if (parts.length > 2 && parts[0] && !ignored.includes(parts[0])) {
-    return parts[0]
+  if (!isIp && parts.length > 2 && parts[0] && !GENERIC_HOSTS.includes(parts[0])) {
+    return { slug: parts[0], basename: '/' }
   }
-  return null
+
+  return { slug: null, basename: '/' }
 }
+
+/** Só o identificador — para quem não precisa da base de navegação. */
+export const resolveTenantSlug = (): string | null => resolveTenantBase().slug
 
 // ---------------------------------------------------------------------------
 // Persistência

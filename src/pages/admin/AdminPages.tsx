@@ -148,7 +148,7 @@ export function BranchesPage() {
         { name: 'tax_document', label: 'CNPJ', span: 4 },
         { name: 'phone', label: 'Telefone', span: 4 },
         { name: 'email', label: 'E-mail', type: 'email', span: 4 },
-        { name: 'zip_code', label: 'CEP', span: 4 },
+        { name: 'zip_code', label: 'CEP', type: 'cep', span: 4 },
         { name: 'street', label: 'Logradouro', span: 8 },
         { name: 'street_number', label: 'Número', span: 4 },
         { name: 'district', label: 'Bairro', span: 6 },

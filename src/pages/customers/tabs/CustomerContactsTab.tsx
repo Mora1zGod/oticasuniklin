@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { DataTable } from '@/components/DataTable'
+import { CepField } from '@/components/CepField'
 import { Modal } from '@/components/ui/Modal'
 import { Alert, Badge, Button, Card, Field, Input, Select } from '@/components/ui/primitives'
 import { describeError } from '@/lib/errors'
@@ -347,13 +348,21 @@ export function CustomerContactsTab({
               ))}
             </Select>
           </Field>
-          <Field label="CEP" className="col-span-12 sm:col-span-4">
-            <Input
-              value={address.zip_code}
-              onChange={(e) => setAddress({ ...address, zip_code: e.target.value })}
-              inputMode="numeric"
-            />
-          </Field>
+          <CepField
+            className="col-span-12 sm:col-span-4"
+            value={address.zip_code}
+            onChange={(zip_code) => setAddress({ ...address, zip_code })}
+            onFound={(found) =>
+              setAddress((current) => ({
+                ...current,
+                zip_code: found.zipCode,
+                street: found.street || current.street,
+                district: found.district || current.district,
+                city: found.city || current.city,
+                state_code: found.stateCode || current.state_code,
+              }))
+            }
+          />
           <Field label="Logradouro" required className="col-span-12 sm:col-span-8">
             <Input
               value={address.street}

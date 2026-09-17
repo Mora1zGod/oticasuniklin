@@ -5,6 +5,7 @@ import { useSession } from '@/auth/SessionProvider'
 import {
   DEFAULT_BRANDING,
   brandingCssVars,
+  resolveTenantBase,
   resolveTenantSlug,
   toBranding,
   type Branding,
@@ -78,6 +79,58 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
     }
     link.href = branding.faviconUrl
   }, [branding.companyName, branding.faviconUrl])
+
+  // Cada ótica tem o próprio endereço (/nomedaotica). Quem chega pela raiz já
+  // logado é levado para ele: é o endereço que a ótica divulga e instala.
+  useEffect(() => {
+    if (!branding.slug) return
+    if (resolveTenantBase().slug) return
+    const { pathname, search, hash } = window.location
+    window.location.replace(`/${branding.slug}${pathname}${search}${hash}`)
+  }, [branding.slug])
+
+  // Instalado no celular, o aplicativo leva o nome, o ícone e as cores da
+  // ótica — e abre direto no endereço dela, não na raiz do produto.
+  useEffect(() => {
+    const { slug, basename } = resolveTenantBase()
+    if (!slug) return
+
+    const icon = branding.logoIconUrl ?? branding.faviconUrl
+    const manifest = {
+      name: branding.companyName,
+      short_name: branding.shortName,
+      description: branding.subtitle,
+      id: basename,
+      start_url: basename,
+      scope: basename,
+      display: 'standalone',
+      lang: 'pt-BR',
+      background_color: branding.backgroundColor,
+      theme_color: branding.backgroundColor,
+      icons: icon
+        ? [{ src: icon, sizes: 'any', purpose: 'any' }]
+        : [
+            { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+            { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+            {
+              src: '/icons/maskable-512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'maskable',
+            },
+          ],
+    }
+
+    const link = document.querySelector<HTMLLinkElement>('link[rel="manifest"]')
+    if (!link) return
+    const original = link.href
+    link.href =
+      'data:application/manifest+json;charset=utf-8,' +
+      encodeURIComponent(JSON.stringify(manifest))
+    return () => {
+      link.href = original
+    }
+  }, [branding])
 
   const value = useMemo<BrandingState>(
     () => ({
