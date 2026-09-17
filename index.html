@@ -2,8 +2,30 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- viewport-fit=cover: no celular com notch, o app pinta até a borda e o
+         conteúdo respeita as áreas seguras via env(safe-area-inset-*). -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
     <title>Óticas Uniklin</title>
+    <meta name="description" content="Gestão para óticas: clientes, receitas, ordens de serviço, estoque e financeiro." />
+
+    <!-- Aplicativo instalável -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a1628" media="(prefers-color-scheme: dark)" />
+    <meta name="application-name" content="Uniklin" />
+
+    <!-- iPhone/iPad: a Apple ignora boa parte do manifest e lê estas metas. -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Uniklin" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+
+    <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/icons/icon-192.png" sizes="192x192" type="image/png" />
+
     <!-- Antes da primeira pintura: evita o clarão branco de quem usa tema escuro. -->
     <script>
       try {

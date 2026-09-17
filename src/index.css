@@ -14,6 +14,11 @@
    chega aqui como 'dark' ou 'light'. */
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
+/* Janela baixa (notebook com muitas barras, celular deitado): a tela de login
+   encolhe para caber sem barra de rolagem, em vez de cortar o formulário. */
+@custom-variant short (@media (max-height: 880px));
+@custom-variant shorter (@media (max-height: 740px));
+
 @theme {
   /* --- Paleta bruta ------------------------------------------------------ */
   /* Tinta: azul-ardósia profundo. Preto puro cansa em jornada de balcão. */

@@ -42,7 +42,7 @@ export function LoginForm({
   return (
     <form
       onSubmit={onSubmit}
-      className={compact ? 'space-y-2.5' : 'space-y-4'}
+      className={compact ? 'space-y-2.5' : 'space-y-4 short:space-y-3'}
       inert={inert}
     >
       <div>

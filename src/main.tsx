@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { SessionProvider } from '@/auth/SessionProvider'
 import { ThemeProvider } from '@/theme/ThemeProvider'
 import { BrandingProvider } from '@/branding/BrandingProvider'
+import { registerServiceWorker } from '@/pwa/register'
 import { App } from './App'
 import './index.css'
 
@@ -17,6 +18,10 @@ const queryClient = new QueryClient({
     },
   },
 })
+
+// Aplicativo instalável: registra cedo, fora do React, para valer também na
+// tela de login — é de lá que a maioria instala.
+registerServiceWorker()
 
 const root = document.getElementById('root')
 if (!root) throw new Error('#root não encontrado')

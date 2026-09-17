@@ -1,122 +1,30 @@
-import { useState, type ComponentType, type SVGProps } from 'react'
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useSession } from '@/auth/SessionProvider'
 import { useBranding } from '@/branding/BrandingProvider'
 import { useTheme, type ThemeChoice } from '@/theme/ThemeProvider'
+import { NAV, breadcrumbFor, type NavGroup } from './nav'
+import { GlobalSearch, useGlobalSearchHotkey } from './GlobalSearch'
+import { NotificationsBell } from './NotificationsBell'
+import { InstallButton, PwaNotices } from './PwaNotices'
 import { Select, cx } from './ui/primitives'
 import {
-  IconBox,
-  IconCart,
-  IconChart,
+  IconChevronDown,
+  IconChevronRight,
   IconClose,
   IconGlasses,
   IconHome,
+  IconIdea,
   IconLogout,
   IconMenu,
   IconMonitor,
   IconMoon,
-  IconMoney,
-  IconSettings,
+  IconPin,
+  IconSearch,
   IconSun,
-  IconUsers,
-  IconWrench,
 } from './ui/icons'
 
-/**
- * Menu derivado do domínio (ADR-011): cada grupo é um contexto do modelo, não
- * um agrupamento de telas. Não existe "Cadastros → Tabelas".
- */
-type NavItem = { to: string; label: string; permission?: string; end?: boolean }
-type NavGroup = {
-  label: string
-  icon: ComponentType<SVGProps<SVGSVGElement>>
-  items: NavItem[]
-}
-
-const NAV: NavGroup[] = [
-  {
-    label: 'Clientes',
-    icon: IconUsers,
-    items: [
-      { to: '/clientes', label: 'Clientes', permission: 'customer.read', end: true },
-      { to: '/clientes/comunicacoes', label: 'Comunicações', permission: 'customer.read' },
-    ],
-  },
-  {
-    label: 'Óptica',
-    icon: IconGlasses,
-    items: [
-      { to: '/optica/receitas', label: 'Receitas', permission: 'clinical.prescription.read' },
-      { to: '/optica/prescritores', label: 'Prescritores' },
-      { to: '/optica/tipos-de-lente', label: 'Tipos de lente' },
-      { to: '/optica/materiais', label: 'Materiais' },
-      { to: '/optica/tratamentos', label: 'Tratamentos' },
-      { to: '/optica/laboratorios', label: 'Laboratórios' },
-    ],
-  },
-  {
-    label: 'Comercial',
-    icon: IconCart,
-    items: [
-      { to: '/comercial/vendas/nova', label: 'Nova venda', permission: 'sale.write' },
-      { to: '/comercial/vendas', label: 'Vendas', permission: 'sale.read', end: true },
-      { to: '/comercial/orcamentos', label: 'Orçamentos', permission: 'sale.read' },
-    ],
-  },
-  {
-    label: 'Ordens de serviço',
-    icon: IconWrench,
-    items: [
-      { to: '/producao', label: 'Painel de produção', permission: 'service_order.read' },
-      { to: '/ordens-de-servico', label: 'Ordens de serviço', permission: 'service_order.read', end: true },
-      { to: '/laboratorio/pedidos', label: 'Pedidos ao laboratório', permission: 'service_order.read' },
-      { to: '/ordens-de-servico/situacoes', label: 'Situações', permission: 'admin.manage' },
-    ],
-  },
-  {
-    label: 'Produtos',
-    icon: IconBox,
-    items: [
-      { to: '/produtos', label: 'Produtos', permission: 'product.read', end: true },
-      { to: '/produtos/categorias', label: 'Categorias', permission: 'product.read' },
-      { to: '/produtos/marcas', label: 'Marcas', permission: 'product.read' },
-      { to: '/produtos/tabelas-de-preco', label: 'Tabelas de preço', permission: 'product.read' },
-      { to: '/produtos/fornecedores', label: 'Fornecedores', permission: 'product.read' },
-    ],
-  },
-  {
-    label: 'Estoque',
-    icon: IconChart,
-    items: [
-      { to: '/estoque', label: 'Saldos por filial', permission: 'product.read', end: true },
-      { to: '/estoque/movimentacoes', label: 'Movimentações', permission: 'product.read' },
-    ],
-  },
-  {
-    label: 'Financeiro',
-    icon: IconMoney,
-    items: [
-      { to: '/financeiro/receber', label: 'Contas a receber', permission: 'finance.read' },
-      { to: '/financeiro/pagar', label: 'Contas a pagar', permission: 'finance.read' },
-      { to: '/financeiro/comissoes', label: 'Comissões', permission: 'commission.read' },
-      { to: '/financeiro/creditos', label: 'Crédito de clientes', permission: 'finance.read' },
-      { to: '/financeiro/formas-de-pagamento', label: 'Formas de pagamento', permission: 'finance.read' },
-      { to: '/financeiro/plano-de-contas', label: 'Plano de contas', permission: 'finance.read' },
-    ],
-  },
-  {
-    label: 'Administração',
-    icon: IconSettings,
-    items: [
-      { to: '/admin/empresa', label: 'Empresa', permission: 'admin.manage' },
-      { to: '/admin/identidade-visual', label: 'Identidade visual', permission: 'admin.manage' },
-      { to: '/admin/filiais', label: 'Filiais', permission: 'admin.manage' },
-      { to: '/admin/usuarios', label: 'Usuários e convites', permission: 'admin.manage' },
-      { to: '/admin/papeis', label: 'Papéis e permissões', permission: 'admin.manage' },
-      { to: '/admin/catalogos', label: 'Listas configuráveis', permission: 'admin.manage' },
-    ],
-  },
-]
+const OPEN_GROUPS_KEY = 'uniklin.menu.groups'
 
 const initials = (name: string): string =>
   name
@@ -126,8 +34,417 @@ const initials = (name: string): string =>
     .map((part) => part[0]?.toUpperCase() ?? '')
     .join('')
 
+export function AppShell() {
+  const { context, branchId, setBranchId, can, signOut } = useSession()
+  const { branding } = useBranding()
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [userOpen, setUserOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
+
+  useGlobalSearchHotkey(() => setSearchOpen(true))
+
+  // Trocar de tela fecha o que estava aberto por cima dela.
+  useEffect(() => {
+    setMenuOpen(false)
+    setUserOpen(false)
+  }, [location.pathname])
+
+  const groups = useMemo(
+    () =>
+      NAV.map((group) => ({
+        ...group,
+        items: group.items.filter((item) => !item.permission || can(item.permission)),
+      })).filter((group) => group.items.length > 0),
+    [can],
+  )
+
+  if (context?.status !== 'ready') return null
+
+  const branch = context.branches.find((b) => b.id === branchId)
+  const trail = breadcrumbFor(location.pathname)
+
+  return (
+    <div className="flex h-full bg-canvas pt-[env(safe-area-inset-top)]">
+      {menuOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-sidebar/60 lg:hidden"
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
+
+      {/* ------------------------------ Menu ------------------------------ */}
+      <aside
+        className={cx(
+          'z-40 flex shrink-0 flex-col bg-sidebar transition-[width]',
+          collapsed ? 'lg:w-16' : 'lg:w-64',
+          'w-64 max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:shadow-2xl',
+          'max-lg:pt-[env(safe-area-inset-top)] max-lg:pb-[env(safe-area-inset-bottom)]',
+          menuOpen ? 'max-lg:block' : 'max-lg:hidden',
+        )}
+      >
+        {/* Marca */}
+        <button
+          onClick={() => navigate('/')}
+          className="flex h-16 shrink-0 items-center gap-2.5 px-4 text-left"
+        >
+          {branding.logoIconUrl ? (
+            <img src={branding.logoIconUrl} alt="" className="size-9 rounded-lg object-contain" />
+          ) : (
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-white/10 text-brand-300">
+              <IconGlasses className="size-5" />
+            </span>
+          )}
+          {!collapsed && (
+            <span className="min-w-0">
+              <span className="block truncate text-[0.9375rem] leading-tight font-semibold text-white">
+                {branding.companyName}
+              </span>
+              <span className="block truncate text-[0.6875rem] leading-tight text-sidebar-fg/60">
+                {branding.subtitle}
+              </span>
+            </span>
+          )}
+        </button>
+
+        <nav className="min-h-0 flex-1 overflow-y-auto px-2.5 pb-3">
+          <NavLink to="/" end className={itemClass} title="Início">
+            <IconHome className="size-4.5 shrink-0" />
+            {!collapsed && 'Início'}
+          </NavLink>
+
+          <div className="mt-2 space-y-1">
+            {groups.map((group) => (
+              <MenuGroup
+                key={group.id}
+                group={group}
+                collapsed={collapsed}
+                pathname={location.pathname}
+              />
+            ))}
+          </div>
+        </nav>
+
+        {!collapsed && (
+          <div className="shrink-0 px-3 pb-3">
+            <div className="flex items-start gap-2.5 rounded-lg bg-white/6 px-3 py-2.5">
+              <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md bg-brand-500/20 text-brand-300">
+                <IconIdea className="size-4" />
+              </span>
+              <p className="text-[0.6875rem] leading-snug text-sidebar-fg/80">
+                <span className="block font-semibold text-white">
+                  Óticas que crescem
+                </span>
+                usam {branding.shortName}.
+              </p>
+            </div>
+          </div>
+        )}
+
+        <button
+          onClick={() => setCollapsed((v) => !v)}
+          className="hidden shrink-0 items-center gap-2.5 px-5 py-3 text-[0.75rem] text-sidebar-fg/70 hover:text-white lg:flex"
+        >
+          <IconChevronRight
+            className={cx('size-4 transition-transform', !collapsed && 'rotate-180')}
+          />
+          {!collapsed && 'Recolher menu'}
+        </button>
+      </aside>
+
+      {/* ---------------------------- Conteúdo ---------------------------- */}
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="z-20 flex h-16 shrink-0 items-center gap-2 border-b border-line bg-surface px-3 sm:gap-3 sm:px-4">
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            className="rounded-md p-2 text-fg-muted hover:bg-surface-sunken lg:hidden"
+            aria-label="Abrir menu"
+          >
+            {menuOpen ? <IconClose className="size-5" /> : <IconMenu className="size-5" />}
+          </button>
+
+          {/* Busca global */}
+          <button
+            onClick={() => setSearchOpen(true)}
+            className={cx(
+              'flex h-10 min-w-0 flex-1 items-center gap-2 rounded-xl border border-line bg-canvas px-3',
+              'text-sm text-fg-subtle transition-colors hover:border-line-strong sm:max-w-xl',
+            )}
+          >
+            <IconSearch className="size-4 shrink-0" />
+            <span className="truncate">Buscar cliente, O.S., venda ou tela…</span>
+            <kbd className="ml-auto hidden shrink-0 rounded border border-line px-1.5 py-0.5 text-[0.625rem] text-fg-subtle sm:block">
+              Ctrl K
+            </kbd>
+          </button>
+
+          <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
+            {context.branches.length > 1 ? (
+              <label className="relative hidden md:block">
+                <IconPin className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-fg-subtle" />
+                <Select
+                  value={branchId ?? ''}
+                  onChange={(e) => setBranchId(e.target.value)}
+                  className="h-10 w-48 py-0 pl-8 text-xs"
+                  aria-label="Filial"
+                >
+                  {context.branches.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.trade_name}
+                    </option>
+                  ))}
+                </Select>
+              </label>
+            ) : (
+              <span className="hidden items-center gap-1.5 rounded-lg bg-surface-sunken px-2.5 py-2 text-xs font-medium text-fg-muted md:flex">
+                <IconPin className="size-3.5 text-fg-subtle" />
+                {branch?.trade_name}
+              </span>
+            )}
+
+            <InstallButton />
+            <ThemeSwitch />
+            <NotificationsBell />
+
+            {/* Usuário */}
+            <div className="relative">
+              <button
+                onClick={() => setUserOpen((v) => !v)}
+                className="flex items-center gap-2 rounded-lg p-1 pr-1.5 hover:bg-surface-sunken"
+                aria-haspopup="menu"
+                aria-expanded={userOpen}
+              >
+                <span className="flex size-9 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700 dark:bg-brand-500/20 dark:text-brand-200">
+                  {initials(context.full_name)}
+                </span>
+                <span className="hidden text-left leading-tight lg:block">
+                  <span className="block text-xs font-semibold text-fg">
+                    {context.full_name}
+                  </span>
+                  <span className="block text-[0.6875rem] text-fg-subtle">
+                    {context.is_tenant_admin ? 'Administrador' : (branch?.role ?? '')}
+                  </span>
+                </span>
+                <IconChevronDown className="hidden size-4 text-fg-subtle lg:block" />
+              </button>
+
+              {userOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setUserOpen(false)} />
+                  <div className="absolute right-0 z-20 mt-1.5 w-60 rounded-xl border border-line bg-surface p-1.5 shadow-lg">
+                    <div className="border-b border-line px-2.5 py-2">
+                      <p className="truncate text-sm font-medium text-fg">
+                        {context.full_name}
+                      </p>
+                      <p className="truncate text-xs text-fg-subtle">{context.email}</p>
+                    </div>
+
+                    {context.branches.length > 1 && (
+                      <div className="border-b border-line px-2.5 py-2 md:hidden">
+                        <p className="mb-1 text-[0.6875rem] text-fg-subtle">Filial</p>
+                        <Select
+                          value={branchId ?? ''}
+                          onChange={(e) => setBranchId(e.target.value)}
+                          className="h-9 py-0 text-xs"
+                          aria-label="Filial"
+                        >
+                          {context.branches.map((b) => (
+                            <option key={b.id} value={b.id}>
+                              {b.trade_name}
+                            </option>
+                          ))}
+                        </Select>
+                      </div>
+                    )}
+
+                    <button
+                      onClick={() => void signOut()}
+                      className="mt-1 flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm text-fg-muted hover:bg-surface-sunken hover:text-fg"
+                    >
+                      <IconLogout className="size-4" />
+                      Sair
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </header>
+
+        <main className="min-w-0 flex-1 overflow-y-auto">
+          <div
+            className={
+              'mx-auto flex min-h-full max-w-[1600px] flex-col p-4 sm:p-6 ' +
+              'pb-[max(1rem,env(safe-area-inset-bottom))] ' +
+              'pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] ' +
+              'sm:pl-[max(1.5rem,env(safe-area-inset-left))] sm:pr-[max(1.5rem,env(safe-area-inset-right))]'
+            }
+          >
+            {trail.length > 0 && (
+              <nav
+                aria-label="Você está em"
+                className="mb-3 flex flex-wrap items-center gap-1 text-xs text-fg-subtle"
+              >
+                {trail.map((step, index) => (
+                  <span key={step.label + index} className="flex items-center gap-1">
+                    {index > 0 && <IconChevronRight className="size-3" />}
+                    {step.to ? (
+                      <NavLink to={step.to} className="hover:text-fg">
+                        {step.label}
+                      </NavLink>
+                    ) : (
+                      <span className={index === trail.length - 1 ? 'text-fg-muted' : ''}>
+                        {step.label}
+                      </span>
+                    )}
+                  </span>
+                ))}
+              </nav>
+            )}
+
+            <div className="flex-1">
+              <Outlet />
+            </div>
+
+            <footer className="mt-8 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-4 text-[0.6875rem] text-fg-subtle">
+              <span>
+                {branding.companyName} · © {new Date().getFullYear()}
+              </span>
+              <span>{context.tenant.slug}</span>
+            </footer>
+          </div>
+        </main>
+      </div>
+
+      {searchOpen && <GlobalSearch onClose={() => setSearchOpen(false)} />}
+      <PwaNotices />
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+
+const itemClass = ({ isActive }: { isActive: boolean }): string =>
+  cx(
+    'flex items-center gap-2.5 rounded-lg px-2.5 text-[0.8125rem] transition-colors',
+    'py-2.5 lg:py-2',
+    isActive
+      ? 'bg-brand-600 font-medium text-white'
+      : 'text-sidebar-fg/80 hover:bg-white/6 hover:text-white',
+  )
+
+/**
+ * Grupo do menu: o título é um botão que abre e fecha a lista. A escolha fica
+ * guardada, e o grupo da tela aberta abre sozinho — quem navega por link direto
+ * não precisa caçar onde está.
+ */
+function MenuGroup({
+  group,
+  collapsed,
+  pathname,
+}: {
+  group: NavGroup
+  collapsed: boolean
+  pathname: string
+}) {
+  const hasActive = group.items.some(
+    (item) => pathname === item.to || pathname.startsWith(item.to + '/'),
+  )
+  const [open, setOpen] = useState(() => readOpen(group.id))
+
+  // Navegou para uma tela deste grupo: ele se abre.
+  useEffect(() => {
+    if (hasActive) setOpen(true)
+  }, [hasActive])
+
+  const toggle = () => {
+    setOpen((previous) => {
+      writeOpen(group.id, !previous)
+      return !previous
+    })
+  }
+
+  if (collapsed) {
+    return (
+      <div className="space-y-0.5 border-t border-white/8 pt-1">
+        {group.items.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.end}
+            className={itemClass}
+            title={item.label}
+          >
+            <item.icon className="size-4.5 shrink-0" />
+          </NavLink>
+        ))}
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <button
+        onClick={toggle}
+        aria-expanded={open}
+        className={cx(
+          'flex w-full items-center gap-1.5 rounded-lg px-2.5 py-1.5',
+          'text-[0.6875rem] font-semibold tracking-wider uppercase transition-colors',
+          hasActive ? 'text-sidebar-fg' : 'text-sidebar-fg/55',
+          'hover:text-white',
+        )}
+      >
+        <IconChevronDown
+          className={cx('size-3.5 shrink-0 transition-transform', !open && '-rotate-90')}
+        />
+        <span className="truncate">{group.label}</span>
+      </button>
+
+      {open && (
+        <div className="mt-0.5 space-y-0.5">
+          {group.items.map((item) => (
+            <NavLink key={item.to} to={item.to} end={item.end} className={itemClass}>
+              <item.icon className="size-4.5 shrink-0" />
+              <span className="truncate">{item.label}</span>
+            </NavLink>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function readOpen(id: string): boolean {
+  try {
+    const raw = localStorage.getItem(OPEN_GROUPS_KEY)
+    if (!raw) return true
+    const map = JSON.parse(raw) as Record<string, boolean>
+    return map[id] ?? true
+  } catch {
+    return true
+  }
+}
+
+function writeOpen(id: string, value: boolean): void {
+  try {
+    const raw = localStorage.getItem(OPEN_GROUPS_KEY)
+    const map = raw ? (JSON.parse(raw) as Record<string, boolean>) : {}
+    map[id] = value
+    localStorage.setItem(OPEN_GROUPS_KEY, JSON.stringify(map))
+  } catch {
+    // sem storage a preferência não persiste; o menu continua funcionando
+  }
+}
+
 /** Claro, escuro ou o que o sistema operacional estiver usando. */
-const THEME_OPTIONS: { value: ThemeChoice; label: string; icon: ComponentType<SVGProps<SVGSVGElement>> }[] = [
+const THEME_OPTIONS: {
+  value: ThemeChoice
+  label: string
+  icon: typeof IconSun
+}[] = [
   { value: 'light', label: 'Tema claro', icon: IconSun },
   { value: 'dark', label: 'Tema escuro', icon: IconMoon },
   { value: 'system', label: 'Acompanhar o sistema', icon: IconMonitor },
@@ -158,190 +475,6 @@ function ThemeSwitch() {
           <Icon className="size-4" />
         </button>
       ))}
-    </div>
-  )
-}
-
-export function AppShell() {
-  const { context, branchId, setBranchId, can, signOut } = useSession()
-  const { branding } = useBranding()
-  const navigate = useNavigate()
-  const [menuOpen, setMenuOpen] = useState(false)
-
-  if (context?.status !== 'ready') return null
-
-  const groups = NAV.map((group) => ({
-    ...group,
-    items: group.items.filter((item) => !item.permission || can(item.permission)),
-  })).filter((group) => group.items.length > 0)
-
-  const branch = context.branches.find((b) => b.id === branchId)
-
-  const itemClass = ({ isActive }: { isActive: boolean }): string =>
-    cx(
-      'relative flex items-center rounded-md py-1.5 pr-2.5 pl-8 text-[0.8125rem] transition-colors',
-      isActive
-        ? 'bg-surface/10 font-medium text-white'
-        : 'text-fg-subtle hover:bg-surface/5 hover:text-white',
-    )
-
-  return (
-    <div className="flex h-full flex-col bg-canvas">
-      {/* ---------------------------------------------------------------- */}
-      <header className="z-30 flex h-14 shrink-0 items-center gap-3 border-b border-line bg-surface px-3 sm:px-4">
-        <button
-          onClick={() => setMenuOpen((v) => !v)}
-          className="rounded-md p-1.5 text-fg-muted hover:bg-surface-sunken lg:hidden"
-          aria-label="Abrir menu"
-        >
-          {menuOpen ? <IconClose className="size-5" /> : <IconMenu className="size-5" />}
-        </button>
-
-        <button
-          onClick={() => navigate('/')}
-          className="flex items-center gap-2.5 text-left"
-        >
-          {branding.logoIconUrl ? (
-            <img
-              src={branding.logoIconUrl}
-              alt=""
-              className="size-8 rounded-lg object-contain"
-            />
-          ) : (
-            <span className="flex size-8 items-center justify-center rounded-lg bg-sidebar text-white">
-              <IconGlasses className="size-4.5" />
-            </span>
-          )}
-          <span className="hidden sm:block">
-            <span className="block text-sm leading-tight font-semibold tracking-tight text-fg">
-              {branding.companyName}
-            </span>
-            <span className="block text-[0.6875rem] leading-tight text-fg-subtle">
-              {branding.subtitle}
-            </span>
-          </span>
-        </button>
-
-        <div className="ml-auto flex items-center gap-2 sm:gap-3">
-          <ThemeSwitch />
-
-          {context.branches.length > 1 ? (
-            <Select
-              value={branchId ?? ''}
-              onChange={(e) => setBranchId(e.target.value)}
-              className="h-9 w-44 py-0 text-xs"
-              aria-label="Filial"
-            >
-              {context.branches.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.trade_name}
-                </option>
-              ))}
-            </Select>
-          ) : (
-            <span className="hidden rounded-md bg-surface-sunken px-2.5 py-1 text-xs font-medium text-fg-muted md:block">
-              {branch?.trade_name}
-            </span>
-          )}
-
-          <div className="flex items-center gap-2 border-l border-line pl-2 sm:pl-3">
-            <span className="flex size-8 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700 dark:bg-brand-500/20 dark:text-brand-200">
-              {initials(context.full_name)}
-            </span>
-            <div className="hidden leading-tight lg:block">
-              <p className="text-xs font-medium text-fg">{context.full_name}</p>
-              <p className="text-[0.6875rem] text-fg-subtle">
-                {context.is_tenant_admin ? 'Administrador' : (branch?.role ?? '')}
-              </p>
-            </div>
-            <button
-              onClick={() => void signOut()}
-              className="rounded-md p-1.5 text-fg-subtle transition-colors hover:bg-surface-sunken hover:text-fg"
-              aria-label="Sair"
-              title="Sair"
-            >
-              <IconLogout className="size-4.5" />
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <div className="flex min-h-0 flex-1">
-        {/* -------------------------------------------------------------- */}
-        {menuOpen && (
-          <div
-            className="fixed inset-0 z-20 bg-sidebar/60 lg:hidden"
-            onClick={() => setMenuOpen(false)}
-          />
-        )}
-
-        <aside
-          className={cx(
-            'z-20 w-62 shrink-0 overflow-y-auto bg-sidebar px-2.5 py-3',
-            'max-lg:fixed max-lg:inset-y-14 max-lg:left-0 max-lg:shadow-2xl',
-            menuOpen ? 'block' : 'hidden lg:block',
-          )}
-        >
-          <NavLink
-            to="/"
-            end
-            onClick={() => setMenuOpen(false)}
-            className={({ isActive }) =>
-              cx(
-                'mb-3 flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors',
-                isActive
-                  ? 'bg-surface/10 font-medium text-white'
-                  : 'text-fg-subtle hover:bg-surface/5 hover:text-white',
-              )
-            }
-          >
-            <IconHome className="size-4.5 shrink-0" />
-            Início
-          </NavLink>
-
-          {groups.map((group) => {
-            const GroupIcon = group.icon
-            return (
-              <div key={group.label} className="mb-4">
-                <p className="mb-1 flex items-center gap-2 px-2.5 text-[0.6875rem] font-semibold tracking-wider text-fg-subtle uppercase">
-                  <GroupIcon className="size-3.5 shrink-0" />
-                  {group.label}
-                </p>
-                <div className="space-y-0.5">
-                  {group.items.map((item) => (
-                    <NavLink
-                      key={item.to}
-                      to={item.to}
-                      end={item.end}
-                      onClick={() => setMenuOpen(false)}
-                      className={itemClass}
-                    >
-                      {({ isActive }) => (
-                        <>
-                          {isActive && (
-                            <span className="absolute top-1.5 bottom-1.5 left-3 w-0.5 rounded-full bg-brand-400" />
-                          )}
-                          {item.label}
-                        </>
-                      )}
-                    </NavLink>
-                  ))}
-                </div>
-              </div>
-            )
-          })}
-
-          <p className="px-2.5 pt-2 pb-1 text-[0.625rem] text-fg-muted">
-            {branding.shortName} · {context.tenant.slug}
-          </p>
-        </aside>
-
-        <main className="min-w-0 flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-[1600px] p-4 sm:p-6">
-            <Outlet />
-          </div>
-        </main>
-      </div>
     </div>
   )
 }

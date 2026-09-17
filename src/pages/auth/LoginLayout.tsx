@@ -96,7 +96,7 @@ export function LoginLayout({
 
       <div
         className={
-          'relative mx-auto grid w-full items-center gap-10 ' +
+          'relative mx-auto grid w-full items-center gap-10 short:gap-6 ' +
           // Sem imagem institucional, a terceira coluna só criaria vazio — e a
           // largura máxima encolhe para o texto e o card não ficarem em pontas
           // opostas de uma tela larga.
@@ -105,7 +105,7 @@ export function LoginLayout({
             : 'max-w-[62rem] @5xl:grid-cols-[minmax(0,1fr)_minmax(0,25rem)] ') +
           (compact
             ? 'h-full gap-6 px-6 py-8'
-            : 'min-h-screen px-5 py-10 @xl:px-8 @5xl:px-12')
+            : 'min-h-svh px-5 py-10 short:py-5 shorter:py-3 @xl:px-8 @5xl:px-12')
         }
       >
         {/* ---------------- Institucional (esquerda) ---------------- */}
@@ -113,7 +113,9 @@ export function LoginLayout({
           <h2
             className={
               'max-w-[11ch] font-semibold tracking-tight text-balance ' +
-              (compact ? 'text-2xl leading-[1.15]' : 'text-[2.75rem] leading-[1.06]')
+              (compact
+                ? 'text-2xl leading-[1.15]'
+                : 'text-[2.75rem] leading-[1.06] short:text-[2.25rem]')
             }
           >
             {headBefore}
@@ -126,14 +128,17 @@ export function LoginLayout({
 
           <p
             className={
-              'max-w-md opacity-70 ' + (compact ? 'mt-3 text-xs' : 'mt-5 text-[0.9375rem] leading-relaxed')
+              'max-w-md opacity-70 ' +
+              (compact
+                ? 'mt-3 text-xs'
+                : 'mt-5 text-[0.9375rem] leading-relaxed short:mt-3')
             }
           >
             {branding.loginDescription}
           </p>
 
           {benefits.length > 0 && (
-            <ul className={compact ? 'mt-5 space-y-2.5' : 'mt-9 space-y-4'}>
+            <ul className={compact ? 'mt-5 space-y-2.5' : 'mt-9 space-y-4 short:mt-5 short:space-y-2.5'}>
               {benefits.map((benefit, index) => (
                 <li key={benefit} className="flex items-center gap-3">
                   <span
@@ -155,21 +160,22 @@ export function LoginLayout({
 
         {/* ---------------- Autenticação (centro) ---------------- */}
         <section className="mx-auto w-full max-w-sm">
-          <header className={compact ? 'mb-4 text-center' : 'mb-7 text-center'}>
+          <header className={compact ? 'mb-4 text-center' : 'mb-7 text-center short:mb-4'}>
             {branding.logoUrl ? (
               <img
                 src={branding.logoUrl}
                 alt={branding.companyName}
                 className={
-                  'mx-auto w-auto object-contain ' + (compact ? 'max-h-10' : 'max-h-16')
+                  'mx-auto w-auto object-contain ' +
+                  (compact ? 'max-h-10' : 'max-h-16 short:max-h-12')
                 }
               />
             ) : (
               <>
                 <span
                   className={
-                    'mx-auto mb-3 flex items-center justify-center rounded-2xl ' +
-                    (compact ? 'size-10' : 'size-14')
+                    'mx-auto mb-3 flex items-center justify-center rounded-2xl short:mb-2 ' +
+                    (compact ? 'size-10' : 'size-14 short:size-11')
                   }
                   style={{
                     backgroundColor:
@@ -184,12 +190,13 @@ export function LoginLayout({
                       className="size-2/3 object-contain"
                     />
                   ) : (
-                    <IconGlasses className={compact ? 'size-5' : 'size-7'} />
+                    <IconGlasses className={compact ? 'size-5' : 'size-7 short:size-6'} />
                   )}
                 </span>
                 <h1
                   className={
-                    'font-semibold tracking-tight ' + (compact ? 'text-base' : 'text-2xl')
+                    'font-semibold tracking-tight ' +
+                    (compact ? 'text-base' : 'text-2xl short:text-xl')
                   }
                 >
                   {branding.companyName}
@@ -209,7 +216,7 @@ export function LoginLayout({
           <div
             className={
               'rounded-2xl border shadow-2xl backdrop-blur-sm ' +
-              (compact ? 'p-4' : 'p-6 @xl:p-7')
+              (compact ? 'p-4' : 'p-6 short:p-4')
             }
             style={{
               backgroundColor: 'color-mix(in oklab, var(--brand-surface) 88%, transparent)',
@@ -223,7 +230,7 @@ export function LoginLayout({
           <p
             className={
               'mx-auto max-w-sm text-center leading-relaxed opacity-55 ' +
-              (compact ? 'mt-3 text-[0.625rem]' : 'mt-6 text-xs')
+              (compact ? 'mt-3 text-[0.625rem]' : 'mt-6 text-xs short:mt-3')
             }
           >
             {branding.loginFootnote}

@@ -56,7 +56,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // O atributo carrega o tema JÁ RESOLVIDO, não a escolha: o CSS tem um único
   // bloco escuro e não precisa repetir os tokens numa consulta de mídia.
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', resolved)
+    const root = document.documentElement
+    root.setAttribute('data-theme', resolved)
+
+    // Instalado no celular, a barra de status do sistema é pintada por esta
+    // meta — sem ela o app aparece com uma faixa branca em cima do tema escuro.
+    for (const meta of document.querySelectorAll<HTMLMetaElement>(
+      'meta[name="theme-color"]',
+    )) {
+      meta.removeAttribute('media')
+      meta.content = getComputedStyle(root).getPropertyValue('--s-canvas').trim()
+    }
   }, [resolved])
 
   const setChoice = useCallback((next: ThemeChoice) => {
