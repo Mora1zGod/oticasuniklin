@@ -391,6 +391,9 @@ def emit_database(tables, views, checks, fks, functions, comments) -> str:
                 f"{ts_type(c['data_type'], c.get('udt_name', ''))}{nullable}"
             )
         out.append("        }")
+        # O postgrest-js exige Relationships tambem nas views (GenericView).
+        # Views nao carregam FK declarada: a lista e vazia de proposito.
+        out.append("        Relationships: []")
         out.append("      }")
     out.append("    }")
 
@@ -481,14 +484,19 @@ def pg_to_ts(raw: str) -> str:
 
 def fn_args_ts(args: str) -> str:
     if not args.strip():
-        return "Record<PropertyKey, never>"
+        return "Record<string, never>"
     fields = []
     for part in split_args(args):
         m = ARG_RE.match(part.strip())
         if not m:
             return "Record<string, unknown>"
-        optional = "?" if m.group("default") else ""
-        fields.append(f"{m.group('name')}{optional}: {pg_to_ts(m.group('type'))}")
+        default = m.group("default")
+        optional = "?" if default else ""
+        ts = pg_to_ts(m.group("type"))
+        # DEFAULT NULL: o argumento aceita null explicitamente
+        if default and re.match(r"^\s*NULL\b", default, re.IGNORECASE):
+            ts = f"{ts} | null"
+        fields.append(f"{m.group('name')}{optional}: {ts}")
     return "{ " + "; ".join(fields) + " }"
 
 

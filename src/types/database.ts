@@ -4322,6 +4322,7 @@ export type Database = {
           primary_email: string | null
           pending_fields: string[] | null
         }
+        Relationships: []
       }
       v_customer_prescriptions: {
         Row: {
@@ -4346,6 +4347,7 @@ export type Database = {
           od_addition: number | null
           os_addition: number | null
         }
+        Relationships: []
       }
       v_service_order_production: {
         Row: {
@@ -4381,32 +4383,33 @@ export type Database = {
           dp_total_mm: number | null
           dp_source: string | null
         }
+        Relationships: []
       }
     }
     Functions: {
       /** bootstrap_tenant(p_slug text, p_legal_name text, p_trade_name text, p_branch_name text DEFAULT 'Matriz'::text, p_admin_name text DEFAULT NULL::text, p_tax_document text DEFAULT NULL::text, p_auth_user_id uuid DEFAULT NULL::uuid) returns uuid */
       bootstrap_tenant: {
-        Args: { p_slug: string; p_legal_name: string; p_trade_name: string; p_branch_name?: string; p_admin_name?: string; p_tax_document?: string; p_auth_user_id?: string }
+        Args: { p_slug: string; p_legal_name: string; p_trade_name: string; p_branch_name?: string; p_admin_name?: string | null; p_tax_document?: string | null; p_auth_user_id?: string | null }
         Returns: string
       }
       /** current_app_user_id() returns uuid */
       current_app_user_id: {
-        Args: Record<PropertyKey, never>
+        Args: Record<string, never>
         Returns: string
       }
       /** current_branch_ids() returns uuid[] */
       current_branch_ids: {
-        Args: Record<PropertyKey, never>
+        Args: Record<string, never>
         Returns: string[]
       }
       /** current_session_context() returns jsonb */
       current_session_context: {
-        Args: Record<PropertyKey, never>
+        Args: Record<string, never>
         Returns: Json
       }
       /** current_tenant_id() returns uuid */
       current_tenant_id: {
-        Args: Record<PropertyKey, never>
+        Args: Record<string, never>
         Returns: string
       }
       /** customer_missing_fields(p_customer_id uuid, p_requirement text DEFAULT 'complete'::text) returns text[] */
@@ -4421,7 +4424,7 @@ export type Database = {
       }
       /** handle_new_auth_user() returns trigger */
       handle_new_auth_user: {
-        Args: Record<PropertyKey, never>
+        Args: Record<string, never>
         Returns: unknown
       }
       /** has_permission(p_permission_code text) returns boolean */
@@ -4466,7 +4469,7 @@ export type Database = {
       }
       /** take_prescription_snapshot(p_service_order_id uuid, p_prescription_id uuid, p_created_by uuid DEFAULT NULL::uuid) returns uuid */
       take_prescription_snapshot: {
-        Args: { p_service_order_id: string; p_prescription_id: string; p_created_by?: string }
+        Args: { p_service_order_id: string; p_prescription_id: string; p_created_by?: string | null }
         Returns: string
       }
       /** user_can_access_branch(p_branch_id uuid) returns boolean */

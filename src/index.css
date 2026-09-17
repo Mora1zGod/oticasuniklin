@@ -1,0 +1,33 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-brand-50: oklch(0.97 0.02 250);
+  --color-brand-100: oklch(0.93 0.04 250);
+  --color-brand-200: oklch(0.87 0.07 250);
+  --color-brand-300: oklch(0.78 0.11 250);
+  --color-brand-400: oklch(0.68 0.15 250);
+  --color-brand-500: oklch(0.58 0.18 250);
+  --color-brand-600: oklch(0.50 0.18 250);
+  --color-brand-700: oklch(0.42 0.15 250);
+  --color-brand-800: oklch(0.34 0.12 250);
+  --color-brand-900: oklch(0.27 0.09 250);
+}
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+}
+
+/* Tabela com muitas colunas rola dentro do próprio container. */
+.table-scroll {
+  @apply overflow-x-auto;
+}
