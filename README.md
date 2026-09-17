@@ -14,14 +14,25 @@ distinções confirmadas na auditoria do sistema legado preservadas explicitamen
 
 ```
 db/
-  migrations/   0001..0009  schema completo (Postgres 16 / Supabase)
+  migrations/   0001..0010  schema completo (Postgres 16 / Supabase)
   seeds/        catálogos de plataforma
-  tools/        validate.sh · scenario_item12.sql · gen_types.py · supabase_shim.sql
+  tools/        deploy.sh · validate.sh · scenario_*.sql · gen_types.py
 src/
   types/        database.ts + domain.ts (gerados do schema) + testes de tipo
 docs/
+  DEPLOY.md     como pôr no ar, passo a passo
   arquitetura/  documentação de domínio + 11 ADRs
 ```
+
+## Pôr no ar
+
+```bash
+export DATABASE_URL="postgresql://postgres.<ref>:<senha>@<host>:5432/postgres"
+./db/tools/deploy.sh --seeds
+```
+
+Passo a passo completo (criar o projeto Supabase, aplicar o schema, criar a
+primeira ótica, convidar a equipe): [`docs/DEPLOY.md`](docs/DEPLOY.md).
 
 ## Começando pela documentação
 

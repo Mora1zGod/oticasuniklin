@@ -32,6 +32,9 @@ for f in "$ROOT"/db/seeds/*.sql; do
   $PSQL -d "$DB" -f "$f" >/dev/null
 done
 
+echo "==> cenario de onboarding (por no ar)"
+$PSQL -d "$DB" -f "$ROOT/db/tools/scenario_onboarding.sql"
+
 echo "==> cenario de validacao (item 12 do briefing)"
 $PSQL -d "$DB" -f "$ROOT/db/tools/scenario_item12.sql"
 

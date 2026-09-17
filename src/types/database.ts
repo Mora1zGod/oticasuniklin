@@ -2257,6 +2257,28 @@ export type Database = {
           },
         ]
       }
+      permissions: {
+        Row: {
+          code: string
+          label: string
+          module: string
+          created_at: string
+        }
+        Insert: {
+          code: string
+          label: string
+          module: string
+          created_at?: string
+        }
+        Update: {
+          code?: string
+          label?: string
+          module?: string
+          created_at?: string
+        }
+        Relationships: [
+        ]
+      }
       prescribers: {
         Row: {
           id: string
@@ -2953,6 +2975,12 @@ export type Database = {
           permission_code?: string
         }
         Relationships: [
+          {
+            foreignKeyName: 'role_permissions_code_fk'
+            columns: ['permission_code']
+            referencedRelation: 'permissions'
+            referencedColumns: ['code']
+          },
           {
             foreignKeyName: 'role_permissions_role_id_fkey'
             columns: ['role_id']
@@ -4206,6 +4234,76 @@ export type Database = {
           },
         ]
       }
+      user_invitations: {
+        Row: {
+          id: string
+          tenant_id: string
+          email: string
+          full_name: string | null
+          role_id: string
+          branch_ids: string[]
+          is_salesperson: boolean
+          invited_by: string | null
+          accepted_at: string | null
+          accepted_user_id: string | null
+          expires_at: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          tenant_id: string
+          email: string
+          full_name?: string | null
+          role_id: string
+          branch_ids?: string[]
+          is_salesperson?: boolean
+          invited_by?: string | null
+          accepted_at?: string | null
+          accepted_user_id?: string | null
+          expires_at?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          tenant_id?: string
+          email?: string
+          full_name?: string | null
+          role_id?: string
+          branch_ids?: string[]
+          is_salesperson?: boolean
+          invited_by?: string | null
+          accepted_at?: string | null
+          accepted_user_id?: string | null
+          expires_at?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'user_invitations_accepted_user_id_fkey'
+            columns: ['accepted_user_id']
+            referencedRelation: 'app_users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'user_invitations_invited_by_fkey'
+            columns: ['invited_by']
+            referencedRelation: 'app_users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'user_invitations_role_id_fkey'
+            columns: ['role_id']
+            referencedRelation: 'roles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'user_invitations_tenant_id_fkey'
+            columns: ['tenant_id']
+            referencedRelation: 'tenants'
+            referencedColumns: ['id']
+          },
+        ]
+      }
     }
     Views: {
       v_customer_overview: {
@@ -4286,6 +4384,11 @@ export type Database = {
       }
     }
     Functions: {
+      /** bootstrap_tenant(p_slug text, p_legal_name text, p_trade_name text, p_branch_name text DEFAULT 'Matriz'::text, p_admin_name text DEFAULT NULL::text, p_tax_document text DEFAULT NULL::text, p_auth_user_id uuid DEFAULT NULL::uuid) returns uuid */
+      bootstrap_tenant: {
+        Args: { p_slug: string; p_legal_name: string; p_trade_name: string; p_branch_name?: string; p_admin_name?: string; p_tax_document?: string; p_auth_user_id?: string }
+        Returns: string
+      }
       /** current_app_user_id() returns uuid */
       current_app_user_id: {
         Args: Record<PropertyKey, never>
@@ -4295,6 +4398,11 @@ export type Database = {
       current_branch_ids: {
         Args: Record<PropertyKey, never>
         Returns: string[]
+      }
+      /** current_session_context() returns jsonb */
+      current_session_context: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       /** current_tenant_id() returns uuid */
       current_tenant_id: {
@@ -4310,6 +4418,11 @@ export type Database = {
       digits_only: {
         Args: { p_value: string }
         Returns: string
+      }
+      /** handle_new_auth_user() returns trigger */
+      handle_new_auth_user: {
+        Args: Record<PropertyKey, never>
+        Returns: unknown
       }
       /** has_permission(p_permission_code text) returns boolean */
       has_permission: {
@@ -4340,6 +4453,16 @@ export type Database = {
       resolve_catalog: {
         Args: { p_catalog_key: string; p_tenant_id: string }
         Returns: { id: string; code: string; label: string; sort_order: number; is_platform: boolean }[]
+      }
+      /** seed_tenant_defaults(p_tenant_id uuid, p_branch_id uuid) returns void */
+      seed_tenant_defaults: {
+        Args: { p_tenant_id: string; p_branch_id: string }
+        Returns: void
+      }
+      /** seed_tenant_roles(p_tenant_id uuid) returns void */
+      seed_tenant_roles: {
+        Args: { p_tenant_id: string }
+        Returns: void
       }
       /** take_prescription_snapshot(p_service_order_id uuid, p_prescription_id uuid, p_created_by uuid DEFAULT NULL::uuid) returns uuid */
       take_prescription_snapshot: {
