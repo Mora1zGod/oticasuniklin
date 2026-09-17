@@ -82,7 +82,11 @@ export function SaleListPage() {
               header: 'Situação',
               render: (r) => {
                 const info = SALE_STATUS[r.status] ?? { label: r.status, tone: 'neutral' as const }
-                return <Badge tone={info.tone}>{info.label}</Badge>
+                return (
+                  <Badge tone={info.tone} dot>
+                    {info.label}
+                  </Badge>
+                )
               },
             },
             {

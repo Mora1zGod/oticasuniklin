@@ -28,10 +28,10 @@ export function Modal({
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/40 p-4 sm:p-8">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink-950/50 p-4 backdrop-blur-[2px] sm:p-8">
       <div
         className={cx(
-          'w-full rounded-lg bg-white shadow-xl',
+          'w-full rounded-card bg-white shadow-2xl shadow-ink-950/20',
           size === 'sm' && 'max-w-md',
           size === 'md' && 'max-w-2xl',
           size === 'lg' && 'max-w-4xl',
@@ -41,15 +41,15 @@ export function Modal({
         aria-modal="true"
         aria-label={title}
       >
-        <header className="flex items-center justify-between border-b border-slate-200 px-5 py-3">
-          <h2 className="text-sm font-semibold text-slate-800">{title}</h2>
+        <header className="flex items-center justify-between border-b border-ink-100 px-5 py-3.5">
+          <h2 className="text-sm font-semibold tracking-tight text-ink-900">{title}</h2>
           <Button variant="ghost" size="sm" onClick={onClose} aria-label="Fechar">
             ✕
           </Button>
         </header>
         <div className="px-5 py-4">{children}</div>
         {footer && (
-          <footer className="flex justify-end gap-2 border-t border-slate-200 px-5 py-3">
+          <footer className="flex justify-end gap-2 border-t border-ink-100 bg-ink-50/50 px-5 py-3">
             {footer}
           </footer>
         )}

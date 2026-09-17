@@ -48,12 +48,13 @@ export function DataTable<T>({
     <div className="table-scroll">
       <table className="w-full min-w-max text-sm">
         <thead>
-          <tr className="border-b border-slate-200 text-left">
+          <tr className="text-left">
             {columns.map((col) => (
               <th
                 key={col.key}
                 className={cx(
-                  'px-3 py-2 text-xs font-semibold tracking-wide text-slate-500 uppercase',
+                  'border-b border-ink-100 bg-ink-50/60 px-3.5 py-2.5',
+                  'text-[0.6875rem] font-semibold tracking-wider text-ink-500 uppercase',
                   col.numeric && 'text-right',
                 )}
               >
@@ -62,22 +63,22 @@ export function DataTable<T>({
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">
+        <tbody className="divide-y divide-ink-100/80">
           {rows.map((row) => (
             <tr
               key={rowKey(row)}
               onClick={onRowClick ? () => onRowClick(row) : undefined}
               className={cx(
-                'transition',
-                onRowClick && 'cursor-pointer hover:bg-brand-50/60',
+                'transition-colors',
+                onRowClick && 'cursor-pointer hover:bg-brand-50/50',
               )}
             >
               {columns.map((col) => (
                 <td
                   key={col.key}
                   className={cx(
-                    'px-3 py-2 align-middle text-slate-700',
-                    col.numeric && 'text-right tabular-nums',
+                    'px-3.5 py-2.5 align-middle text-ink-700',
+                    col.numeric && 'tnum text-right',
                     col.className,
                   )}
                 >

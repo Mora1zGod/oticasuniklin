@@ -7,15 +7,19 @@ import { Badge, Button, Card, PageHeader, cx } from '@/components/ui/primitives'
 import { Spinner } from '@/components/ui/Spinner'
 import { formatDate, formatDiopter } from '@/lib/format'
 
-/** Estágios canônicos na ordem do fluxo (ADR-010). */
+/**
+ * Estágios canônicos na ordem do fluxo (ADR-010). A cor marca a posição na
+ * esteira: cinza no início, azul enquanto está fora da loja, âmbar no
+ * acabamento, verde quando está pronta para o cliente.
+ */
 const STAGES = [
-  { stage: 'draft', label: 'Aberta' },
-  { stage: 'awaiting_lab', label: 'No laboratório' },
-  { stage: 'in_production', label: 'Em produção' },
-  { stage: 'received_from_lab', label: 'Recebida' },
-  { stage: 'assembling', label: 'Montagem' },
-  { stage: 'quality_check', label: 'Conferência' },
-  { stage: 'ready_for_pickup', label: 'Pronta' },
+  { stage: 'draft', label: 'Aberta', accent: 'bg-ink-300' },
+  { stage: 'awaiting_lab', label: 'No laboratório', accent: 'bg-brand-400' },
+  { stage: 'in_production', label: 'Em produção', accent: 'bg-brand-500' },
+  { stage: 'received_from_lab', label: 'Recebida', accent: 'bg-brand-600' },
+  { stage: 'assembling', label: 'Montagem', accent: 'bg-amber-400' },
+  { stage: 'quality_check', label: 'Conferência', accent: 'bg-amber-500' },
+  { stage: 'ready_for_pickup', label: 'Pronta', accent: 'bg-emerald-500' },
 ] as const
 
 export function ProductionBoardPage() {
@@ -91,48 +95,51 @@ export function ProductionBoardPage() {
         {byStage.map((column) => (
           <section
             key={column.stage}
-            className="rounded-lg border border-slate-200 bg-white"
+            className="overflow-hidden rounded-card border border-ink-100 bg-white shadow-sm shadow-ink-900/4"
           >
-            <header className="flex items-center justify-between border-b border-slate-200 px-3 py-2">
-              <h2 className="text-sm font-semibold text-slate-700">{column.label}</h2>
-              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+            <span className={cx('block h-1', column.accent)} />
+            <header className="flex items-center justify-between border-b border-ink-100 px-3 py-2.5">
+              <h2 className="text-sm font-semibold tracking-tight text-ink-800">
+                {column.label}
+              </h2>
+              <span className="tnum rounded-md bg-ink-100 px-2 py-0.5 text-xs font-medium text-ink-600">
                 {column.orders.length}
               </span>
             </header>
             <div className="max-h-96 space-y-2 overflow-y-auto p-2">
               {column.orders.length === 0 ? (
-                <p className="px-2 py-4 text-center text-xs text-slate-400">vazio</p>
+                <p className="px-2 py-5 text-center text-xs text-ink-300">vazio</p>
               ) : (
                 column.orders.map((order) => (
                   <button
                     key={order.service_order_id}
                     onClick={() => navigate(`/ordens-de-servico/${order.service_order_id}`)}
                     className={cx(
-                      'block w-full rounded-md border p-2 text-left transition hover:border-brand-300 hover:bg-brand-50/50',
+                      'block w-full rounded-lg border p-2.5 text-left transition-colors',
                       isLate(order.promised_at)
-                        ? 'border-red-200 bg-red-50/50'
-                        : 'border-slate-200',
+                        ? 'border-red-200 bg-red-50/60 hover:bg-red-50'
+                        : 'border-ink-100 hover:border-brand-200 hover:bg-brand-50/40',
                     )}
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-sm font-medium text-slate-800">
+                      <span className="tnum text-sm font-semibold text-ink-800">
                         #{order.number}
                       </span>
                       {order.promised_at && (
                         <span
                           className={cx(
-                            'text-xs',
+                            'tnum text-xs',
                             isLate(order.promised_at)
                               ? 'font-medium text-red-600'
-                              : 'text-slate-500',
+                              : 'text-ink-400',
                           )}
                         >
                           {formatDate(order.promised_at)}
                         </span>
                       )}
                     </div>
-                    <p className="truncate text-xs text-slate-600">{order.customer_name}</p>
-                    <p className="mt-0.5 truncate text-xs text-slate-400 tabular-nums">
+                    <p className="mt-0.5 truncate text-xs text-ink-600">{order.customer_name}</p>
+                    <p className="tnum mt-1 truncate text-[0.6875rem] text-ink-400">
                       OD {formatDiopter(order.od_sphere_used)} · OE{' '}
                       {formatDiopter(order.os_sphere_used)}
                     </p>
@@ -191,7 +198,7 @@ export function ServiceOrderListPage() {
               key: 'stage',
               header: 'Situação',
               render: (r) => (
-                <Badge tone={r.status_stage === 'delivered' ? 'success' : 'info'}>
+                <Badge tone={r.status_stage === 'delivered' ? 'success' : 'info'} dot>
                   {r.status_code}
                 </Badge>
               ),

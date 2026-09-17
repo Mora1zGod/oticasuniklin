@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAppContext } from '@/auth/SessionProvider'
 import { DataTable, type Column } from '@/components/DataTable'
-import { Badge, Button, Card, Checkbox, Input, PageHeader } from '@/components/ui/primitives'
+import { Badge, Button, Card, Checkbox, PageHeader, SearchInput } from '@/components/ui/primitives'
 import { formatDate, formatDocument, formatPhone } from '@/lib/format'
 import { CustomerQuickCreate } from './CustomerQuickCreate'
 import type { ViewRow } from '@/lib/db'
@@ -70,10 +70,14 @@ export function CustomerListPage() {
       render: (row) => {
         const pending = row.pending_fields ?? []
         if (row.record_status === 'complete' && pending.length === 0) {
-          return <Badge tone="success">Completo</Badge>
+          return (
+            <Badge tone="success" dot>
+              Completo
+            </Badge>
+          )
         }
         return (
-          <Badge tone="warning" className="whitespace-nowrap">
+          <Badge tone="warning" dot>
             Faltam {pending.length} campo{pending.length === 1 ? '' : 's'}
           </Badge>
         )
@@ -93,7 +97,7 @@ export function CustomerListPage() {
         bodyClassName="p-0"
         title={
           <div className="flex flex-wrap items-center gap-3">
-            <Input
+            <SearchInput
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Nome, CPF ou CNPJ…"

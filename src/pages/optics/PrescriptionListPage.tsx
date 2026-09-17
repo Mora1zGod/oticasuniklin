@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { DataTable } from '@/components/DataTable'
-import { Badge, Button, Card, Checkbox, Input, PageHeader } from '@/components/ui/primitives'
+import { Badge, Button, Card, Checkbox, PageHeader, SearchInput } from '@/components/ui/primitives'
 import { formatDate, formatDiopter } from '@/lib/format'
 
 export function PrescriptionListPage() {
@@ -61,7 +61,7 @@ export function PrescriptionListPage() {
         bodyClassName="p-0"
         title={
           <div className="flex flex-wrap items-center gap-3">
-            <Input
+            <SearchInput
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar por cliente…"
@@ -94,7 +94,7 @@ export function PrescriptionListPage() {
               key: 'status',
               header: 'Situação',
               render: (row) => (
-                <Badge tone={row.status === 'active' ? 'success' : 'neutral'}>
+                <Badge tone={row.status === 'active' ? 'success' : 'neutral'} dot>
                   {row.status === 'active' ? 'Vigente' : 'Substituída'}
                 </Badge>
               ),

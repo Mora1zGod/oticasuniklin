@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useSession } from '@/auth/SessionProvider'
 import { Alert, Button, Field, Input } from '@/components/ui/primitives'
+import { IconGlasses } from '@/components/ui/icons'
 import { describeError } from '@/lib/errors'
 
 export function LoginPage() {
@@ -39,16 +40,19 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-full items-center justify-center bg-slate-100 p-4">
+    <div className="flex min-h-full items-center justify-center bg-ink-900 p-4">
       <div className="w-full max-w-sm">
-        <div className="mb-6 text-center">
-          <h1 className="text-2xl font-semibold text-slate-900">Óticas Uniklin</h1>
-          <p className="mt-1 text-sm text-slate-500">Gestão para óticas</p>
+        <div className="mb-7 text-center">
+          <span className="mx-auto mb-3 flex size-12 items-center justify-center rounded-xl bg-white/10 text-white ring-1 ring-white/15">
+            <IconGlasses className="size-6" />
+          </span>
+          <h1 className="text-xl font-semibold tracking-tight text-white">Óticas Uniklin</h1>
+          <p className="mt-1 text-sm text-ink-300">Gestão para óticas</p>
         </div>
 
         <form
           onSubmit={submit}
-          className="space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+          className="space-y-4 rounded-card bg-white p-6 shadow-2xl shadow-ink-950/40"
         >
           {error && <Alert>{error}</Alert>}
           {notice && <Alert tone="info">{notice}</Alert>}
@@ -85,7 +89,7 @@ export function LoginPage() {
               setError(null)
               setNotice(null)
             }}
-            className="w-full text-center text-xs text-slate-500 hover:text-brand-700"
+            className="w-full text-center text-xs text-ink-400 transition-colors hover:text-brand-700"
           >
             {mode === 'signin'
               ? 'Ainda não tem conta? Criar agora'
@@ -93,7 +97,7 @@ export function LoginPage() {
           </button>
         </form>
 
-        <p className="mt-4 text-center text-xs text-slate-400">
+        <p className="mt-5 text-center text-xs leading-relaxed text-ink-400">
           Foi convidado pela sua ótica? Crie a conta com o mesmo e-mail do convite —
           o acesso é liberado automaticamente.
         </p>
