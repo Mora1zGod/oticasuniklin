@@ -62,12 +62,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'app_users_auth_user_id_fkey'
+            isOneToOne: true
             columns: ['auth_user_id']
             referencedRelation: 'users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'app_users_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -148,6 +150,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'branches_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -185,6 +188,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'brands_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -263,12 +267,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'catalog_entries_catalog_key_fkey'
+            isOneToOne: false
             columns: ['catalog_key']
             referencedRelation: 'catalog_definitions'
             referencedColumns: ['key']
           },
           {
             foreignKeyName: 'catalog_entries_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -315,12 +321,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'chart_accounts_parent_id_fkey'
+            isOneToOne: false
             columns: ['parent_id']
             referencedRelation: 'chart_accounts'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'chart_accounts_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -385,24 +393,28 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'commission_rules_app_user_id_fkey'
+            isOneToOne: false
             columns: ['app_user_id']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'commission_rules_branch_id_fkey'
+            isOneToOne: false
             columns: ['branch_id']
             referencedRelation: 'branches'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'commission_rules_category_id_fkey'
+            isOneToOne: false
             columns: ['category_id']
             referencedRelation: 'product_categories'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'commission_rules_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -464,36 +476,42 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'commissions_app_user_id_fkey'
+            isOneToOne: false
             columns: ['app_user_id']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'commissions_branch_id_fkey'
+            isOneToOne: false
             columns: ['branch_id']
             referencedRelation: 'branches'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'commissions_commission_rule_id_fkey'
+            isOneToOne: false
             columns: ['commission_rule_id']
             referencedRelation: 'commission_rules'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'commissions_sale_id_fkey'
+            isOneToOne: false
             columns: ['sale_id']
             referencedRelation: 'sales'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'commissions_sale_item_id_fkey'
+            isOneToOne: false
             columns: ['sale_item_id']
             referencedRelation: 'sale_items'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'commissions_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -552,12 +570,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'company_profiles_customer_fk'
+            isOneToOne: false
             columns: ['customer_id', 'tenant_id']
             referencedRelation: 'customers'
             referencedColumns: ['id', 'tenant_id']
           },
           {
             foreignKeyName: 'company_profiles_customer_id_fkey'
+            isOneToOne: true
             columns: ['customer_id']
             referencedRelation: 'customers'
             referencedColumns: ['id']
@@ -622,12 +642,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'customer_addresses_customer_fk'
+            isOneToOne: false
             columns: ['customer_id', 'tenant_id']
             referencedRelation: 'customers'
             referencedColumns: ['id', 'tenant_id']
           },
           {
             foreignKeyName: 'customer_addresses_customer_id_fkey'
+            isOneToOne: true
             columns: ['customer_id']
             referencedRelation: 'customers'
             referencedColumns: ['id']
@@ -677,12 +699,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'customer_attachments_customer_fk'
+            isOneToOne: false
             columns: ['customer_id', 'tenant_id']
             referencedRelation: 'customers'
             referencedColumns: ['id', 'tenant_id']
           },
           {
             foreignKeyName: 'customer_attachments_uploaded_by_fkey'
+            isOneToOne: false
             columns: ['uploaded_by']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
@@ -729,12 +753,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'customer_audit_events_customer_fk'
+            isOneToOne: false
             columns: ['customer_id', 'tenant_id']
             referencedRelation: 'customers'
             referencedColumns: ['id', 'tenant_id']
           },
           {
             foreignKeyName: 'customer_audit_events_performed_by_fkey'
+            isOneToOne: false
             columns: ['performed_by']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
@@ -785,30 +811,35 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'customer_branch_profiles_agreement_entry_id_fkey'
+            isOneToOne: false
             columns: ['agreement_entry_id']
             referencedRelation: 'catalog_entries'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'customer_branch_profiles_branch_id_fkey'
+            isOneToOne: false
             columns: ['branch_id']
             referencedRelation: 'branches'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'customer_branch_profiles_customer_fk'
+            isOneToOne: false
             columns: ['customer_id', 'tenant_id']
             referencedRelation: 'customers'
             referencedColumns: ['id', 'tenant_id']
           },
           {
             foreignKeyName: 'customer_branch_profiles_preferred_salesperson_id_fkey'
+            isOneToOne: false
             columns: ['preferred_salesperson_id']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'customer_branch_profiles_price_table_fk'
+            isOneToOne: false
             columns: ['price_table_id']
             referencedRelation: 'price_tables'
             referencedColumns: ['id']
@@ -864,18 +895,21 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'customer_communications_branch_id_fkey'
+            isOneToOne: false
             columns: ['branch_id']
             referencedRelation: 'branches'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'customer_communications_created_by_fkey'
+            isOneToOne: false
             columns: ['created_by']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'customer_communications_customer_fk'
+            isOneToOne: false
             columns: ['customer_id', 'tenant_id']
             referencedRelation: 'customers'
             referencedColumns: ['id', 'tenant_id']
@@ -919,6 +953,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'customer_consents_customer_fk'
+            isOneToOne: false
             columns: ['customer_id', 'tenant_id']
             referencedRelation: 'customers'
             referencedColumns: ['id', 'tenant_id']
@@ -971,12 +1006,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'customer_contacts_customer_fk'
+            isOneToOne: false
             columns: ['customer_id', 'tenant_id']
             referencedRelation: 'customers'
             referencedColumns: ['id', 'tenant_id']
           },
           {
             foreignKeyName: 'customer_contacts_customer_id_fkey'
+            isOneToOne: false
             columns: ['customer_id']
             referencedRelation: 'customers'
             referencedColumns: ['id']
@@ -1014,18 +1051,21 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'customer_credit_movements_customer_credit_id_fkey'
+            isOneToOne: false
             columns: ['customer_credit_id']
             referencedRelation: 'customer_credits'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'customer_credit_movements_performed_by_fkey'
+            isOneToOne: false
             columns: ['performed_by']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'customer_credit_movements_sale_id_fkey'
+            isOneToOne: false
             columns: ['sale_id']
             referencedRelation: 'sales'
             referencedColumns: ['id']
@@ -1081,30 +1121,35 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'customer_credits_branch_id_fkey'
+            isOneToOne: false
             columns: ['branch_id']
             referencedRelation: 'branches'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'customer_credits_created_by_fkey'
+            isOneToOne: false
             columns: ['created_by']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'customer_credits_customer_fk'
+            isOneToOne: false
             columns: ['customer_id', 'tenant_id']
             referencedRelation: 'customers'
             referencedColumns: ['id', 'tenant_id']
           },
           {
             foreignKeyName: 'customer_credits_origin_sale_id_fkey'
+            isOneToOne: false
             columns: ['origin_sale_id']
             referencedRelation: 'sales'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'customer_credits_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -1164,30 +1209,35 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'customer_relationships_a_fk'
+            isOneToOne: false
             columns: ['customer_id', 'tenant_id']
             referencedRelation: 'customers'
             referencedColumns: ['id', 'tenant_id']
           },
           {
             foreignKeyName: 'customer_relationships_b_fk'
+            isOneToOne: false
             columns: ['related_customer_id', 'tenant_id']
             referencedRelation: 'customers'
             referencedColumns: ['id', 'tenant_id']
           },
           {
             foreignKeyName: 'customer_relationships_created_by_fkey'
+            isOneToOne: false
             columns: ['created_by']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'customer_relationships_relationship_entry_id_fkey'
+            isOneToOne: false
             columns: ['relationship_entry_id']
             referencedRelation: 'catalog_entries'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'customer_relationships_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -1256,42 +1306,49 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'customers_created_at_branch_id_fkey'
+            isOneToOne: false
             columns: ['created_at_branch_id']
             referencedRelation: 'branches'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'customers_created_by_fkey'
+            isOneToOne: false
             columns: ['created_by']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'customers_merged_into_customer_id_fkey'
+            isOneToOne: false
             columns: ['merged_into_customer_id']
             referencedRelation: 'customers'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'customers_origin_entry_id_fkey'
+            isOneToOne: false
             columns: ['origin_entry_id']
             referencedRelation: 'catalog_entries'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'customers_preferred_branch_id_fkey'
+            isOneToOne: false
             columns: ['preferred_branch_id']
             referencedRelation: 'branches'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'customers_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'customers_updated_by_fkey'
+            isOneToOne: false
             columns: ['updated_by']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
@@ -1323,12 +1380,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'document_sequences_branch_id_fkey'
+            isOneToOne: false
             columns: ['branch_id']
             referencedRelation: 'branches'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'document_sequences_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -1385,6 +1444,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'frame_attributes_product_id_fkey'
+            isOneToOne: true
             columns: ['product_id']
             referencedRelation: 'products'
             referencedColumns: ['id']
@@ -1440,24 +1500,28 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'individual_profiles_customer_fk'
+            isOneToOne: false
             columns: ['customer_id', 'tenant_id']
             referencedRelation: 'customers'
             referencedColumns: ['id', 'tenant_id']
           },
           {
             foreignKeyName: 'individual_profiles_customer_id_fkey'
+            isOneToOne: true
             columns: ['customer_id']
             referencedRelation: 'customers'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'individual_profiles_marital_status_entry_id_fkey'
+            isOneToOne: false
             columns: ['marital_status_entry_id']
             referencedRelation: 'catalog_entries'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'individual_profiles_profession_entry_id_fkey'
+            isOneToOne: false
             columns: ['profession_entry_id']
             referencedRelation: 'catalog_entries'
             referencedColumns: ['id']
@@ -1492,12 +1556,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'lab_order_items_lab_order_id_fkey'
+            isOneToOne: false
             columns: ['lab_order_id']
             referencedRelation: 'lab_orders'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'lab_order_items_lens_spec_id_fkey'
+            isOneToOne: false
             columns: ['lens_spec_id']
             referencedRelation: 'service_order_lens_specs'
             referencedColumns: ['id']
@@ -1565,30 +1631,35 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'lab_orders_branch_id_fkey'
+            isOneToOne: false
             columns: ['branch_id']
             referencedRelation: 'branches'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'lab_orders_created_by_fkey'
+            isOneToOne: false
             columns: ['created_by']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'lab_orders_laboratory_id_fkey'
+            isOneToOne: false
             columns: ['laboratory_id']
             referencedRelation: 'laboratories'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'lab_orders_service_order_id_fkey'
+            isOneToOne: false
             columns: ['service_order_id']
             referencedRelation: 'service_orders'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'lab_orders_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -1650,6 +1721,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'laboratories_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -1723,24 +1795,28 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'lens_attributes_default_laboratory_id_fkey'
+            isOneToOne: false
             columns: ['default_laboratory_id']
             referencedRelation: 'laboratories'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'lens_attributes_lens_material_id_fkey'
+            isOneToOne: false
             columns: ['lens_material_id']
             referencedRelation: 'lens_materials'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'lens_attributes_lens_type_id_fkey'
+            isOneToOne: false
             columns: ['lens_type_id']
             referencedRelation: 'lens_types'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'lens_attributes_product_id_fkey'
+            isOneToOne: true
             columns: ['product_id']
             referencedRelation: 'products'
             referencedColumns: ['id']
@@ -1781,6 +1857,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'lens_materials_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -1806,12 +1883,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'lens_product_treatments_product_id_fkey'
+            isOneToOne: false
             columns: ['product_id']
             referencedRelation: 'products'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'lens_product_treatments_treatment_id_fkey'
+            isOneToOne: false
             columns: ['treatment_id']
             referencedRelation: 'lens_treatments'
             referencedColumns: ['id']
@@ -1852,6 +1931,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'lens_treatments_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -1895,6 +1975,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'lens_types_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -1959,6 +2040,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'optical_prescription_measures_prescription_id_fkey'
+            isOneToOne: false
             columns: ['prescription_id']
             referencedRelation: 'optical_prescriptions'
             referencedColumns: ['id']
@@ -2045,48 +2127,56 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'optical_prescriptions_attachment_id_fkey'
+            isOneToOne: false
             columns: ['attachment_id']
             referencedRelation: 'customer_attachments'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'optical_prescriptions_branch_id_fkey'
+            isOneToOne: false
             columns: ['branch_id']
             referencedRelation: 'branches'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'optical_prescriptions_created_by_fkey'
+            isOneToOne: false
             columns: ['created_by']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'optical_prescriptions_customer_fk'
+            isOneToOne: false
             columns: ['customer_id', 'tenant_id']
             referencedRelation: 'customers'
             referencedColumns: ['id', 'tenant_id']
           },
           {
             foreignKeyName: 'optical_prescriptions_prescriber_id_fkey'
+            isOneToOne: false
             columns: ['prescriber_id']
             referencedRelation: 'prescribers'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'optical_prescriptions_root_prescription_id_fkey'
+            isOneToOne: true
             columns: ['root_prescription_id']
             referencedRelation: 'optical_prescriptions'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'optical_prescriptions_supersedes_prescription_id_fkey'
+            isOneToOne: false
             columns: ['supersedes_prescription_id']
             referencedRelation: 'optical_prescriptions'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'optical_prescriptions_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -2148,36 +2238,42 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'payables_branch_id_fkey'
+            isOneToOne: false
             columns: ['branch_id']
             referencedRelation: 'branches'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'payables_chart_account_id_fkey'
+            isOneToOne: false
             columns: ['chart_account_id']
             referencedRelation: 'chart_accounts'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'payables_lab_order_id_fkey'
+            isOneToOne: false
             columns: ['lab_order_id']
             referencedRelation: 'lab_orders'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'payables_laboratory_id_fkey'
+            isOneToOne: false
             columns: ['laboratory_id']
             referencedRelation: 'laboratories'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'payables_supplier_id_fkey'
+            isOneToOne: false
             columns: ['supplier_id']
             referencedRelation: 'suppliers'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'payables_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -2245,12 +2341,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'payment_methods_chart_account_fk'
+            isOneToOne: false
             columns: ['chart_account_id']
             referencedRelation: 'chart_accounts'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'payment_methods_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -2340,12 +2438,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'prescribers_created_by_fkey'
+            isOneToOne: false
             columns: ['created_by']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'prescribers_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -2368,12 +2468,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'price_table_branches_branch_id_fkey'
+            isOneToOne: false
             columns: ['branch_id']
             referencedRelation: 'branches'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'price_table_branches_price_table_id_fkey'
+            isOneToOne: false
             columns: ['price_table_id']
             referencedRelation: 'price_tables'
             referencedColumns: ['id']
@@ -2411,12 +2513,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'price_table_items_price_table_id_fkey'
+            isOneToOne: false
             columns: ['price_table_id']
             referencedRelation: 'price_tables'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'price_table_items_product_id_fkey'
+            isOneToOne: false
             columns: ['product_id']
             referencedRelation: 'products'
             referencedColumns: ['id']
@@ -2463,6 +2567,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'price_tables_tenant_id_fkey'
+            isOneToOne: true
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -2506,12 +2611,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'product_categories_parent_id_fkey'
+            isOneToOne: false
             columns: ['parent_id']
             referencedRelation: 'product_categories'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'product_categories_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -2594,30 +2701,35 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'products_brand_id_fkey'
+            isOneToOne: false
             columns: ['brand_id']
             referencedRelation: 'brands'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'products_category_id_fkey'
+            isOneToOne: false
             columns: ['category_id']
             referencedRelation: 'product_categories'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'products_created_by_fkey'
+            isOneToOne: false
             columns: ['created_by']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'products_supplier_id_fkey'
+            isOneToOne: false
             columns: ['supplier_id']
             referencedRelation: 'suppliers'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'products_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -2673,18 +2785,21 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'quote_items_parent_item_id_fkey'
+            isOneToOne: false
             columns: ['parent_item_id']
             referencedRelation: 'quote_items'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'quote_items_product_fk'
+            isOneToOne: false
             columns: ['product_id', 'tenant_id']
             referencedRelation: 'products'
             referencedColumns: ['id', 'tenant_id']
           },
           {
             foreignKeyName: 'quote_items_quote_id_fkey'
+            isOneToOne: false
             columns: ['quote_id']
             referencedRelation: 'quotes'
             referencedColumns: ['id']
@@ -2749,36 +2864,42 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'quotes_branch_id_fkey'
+            isOneToOne: false
             columns: ['branch_id']
             referencedRelation: 'branches'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'quotes_created_by_fkey'
+            isOneToOne: false
             columns: ['created_by']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'quotes_customer_fk'
+            isOneToOne: false
             columns: ['customer_id', 'tenant_id']
             referencedRelation: 'customers'
             referencedColumns: ['id', 'tenant_id']
           },
           {
             foreignKeyName: 'quotes_prescription_id_fkey'
+            isOneToOne: false
             columns: ['prescription_id']
             referencedRelation: 'optical_prescriptions'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'quotes_salesperson_id_fkey'
+            isOneToOne: false
             columns: ['salesperson_id']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'quotes_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -2822,24 +2943,28 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'receivable_settlements_branch_id_fkey'
+            isOneToOne: false
             columns: ['branch_id']
             referencedRelation: 'branches'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'receivable_settlements_payment_method_id_fkey'
+            isOneToOne: false
             columns: ['payment_method_id']
             referencedRelation: 'payment_methods'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'receivable_settlements_performed_by_fkey'
+            isOneToOne: false
             columns: ['performed_by']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'receivable_settlements_receivable_id_fkey'
+            isOneToOne: false
             columns: ['receivable_id']
             referencedRelation: 'receivables'
             referencedColumns: ['id']
@@ -2919,42 +3044,49 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'receivables_branch_id_fkey'
+            isOneToOne: false
             columns: ['branch_id']
             referencedRelation: 'branches'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'receivables_chart_account_id_fkey'
+            isOneToOne: false
             columns: ['chart_account_id']
             referencedRelation: 'chart_accounts'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'receivables_customer_fk'
+            isOneToOne: false
             columns: ['customer_id', 'tenant_id']
             referencedRelation: 'customers'
             referencedColumns: ['id', 'tenant_id']
           },
           {
             foreignKeyName: 'receivables_payment_method_id_fkey'
+            isOneToOne: false
             columns: ['payment_method_id']
             referencedRelation: 'payment_methods'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'receivables_sale_id_fkey'
+            isOneToOne: false
             columns: ['sale_id']
             referencedRelation: 'sales'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'receivables_sale_payment_id_fkey'
+            isOneToOne: false
             columns: ['sale_payment_id']
             referencedRelation: 'sale_payments'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'receivables_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -2977,12 +3109,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'role_permissions_code_fk'
+            isOneToOne: false
             columns: ['permission_code']
             referencedRelation: 'permissions'
             referencedColumns: ['code']
           },
           {
             foreignKeyName: 'role_permissions_role_id_fkey'
+            isOneToOne: false
             columns: ['role_id']
             referencedRelation: 'roles'
             referencedColumns: ['id']
@@ -3017,6 +3151,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'roles_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -3078,24 +3213,28 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'sale_items_parent_item_id_fkey'
+            isOneToOne: false
             columns: ['parent_item_id']
             referencedRelation: 'sale_items'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'sale_items_product_fk'
+            isOneToOne: false
             columns: ['product_id', 'tenant_id']
             referencedRelation: 'products'
             referencedColumns: ['id', 'tenant_id']
           },
           {
             foreignKeyName: 'sale_items_sale_id_fkey'
+            isOneToOne: false
             columns: ['sale_id']
             referencedRelation: 'sales'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'sale_items_stock_branch_id_fkey'
+            isOneToOne: false
             columns: ['stock_branch_id']
             referencedRelation: 'branches'
             referencedColumns: ['id']
@@ -3148,12 +3287,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'sale_payments_payment_method_id_fkey'
+            isOneToOne: false
             columns: ['payment_method_id']
             referencedRelation: 'payment_methods'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'sale_payments_sale_id_fkey'
+            isOneToOne: false
             columns: ['sale_id']
             referencedRelation: 'sales'
             referencedColumns: ['id']
@@ -3230,36 +3371,42 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'sales_branch_id_fkey'
+            isOneToOne: false
             columns: ['branch_id']
             referencedRelation: 'branches'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'sales_created_by_fkey'
+            isOneToOne: false
             columns: ['created_by']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'sales_customer_fk'
+            isOneToOne: false
             columns: ['customer_id', 'tenant_id']
             referencedRelation: 'customers'
             referencedColumns: ['id', 'tenant_id']
           },
           {
             foreignKeyName: 'sales_quote_id_fkey'
+            isOneToOne: false
             columns: ['quote_id']
             referencedRelation: 'quotes'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'sales_salesperson_id_fkey'
+            isOneToOne: false
             columns: ['salesperson_id']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'sales_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -3306,6 +3453,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'service_order_fitting_measures_service_order_fitting_id_fkey'
+            isOneToOne: false
             columns: ['service_order_fitting_id']
             referencedRelation: 'service_order_fittings'
             referencedColumns: ['id']
@@ -3377,12 +3525,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'service_order_fittings_measured_by_fkey'
+            isOneToOne: false
             columns: ['measured_by']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'service_order_fittings_service_order_id_fkey'
+            isOneToOne: true
             columns: ['service_order_id']
             referencedRelation: 'service_orders'
             referencedColumns: ['id']
@@ -3466,36 +3616,42 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'service_order_lens_specs_laboratory_id_fkey'
+            isOneToOne: false
             columns: ['laboratory_id']
             referencedRelation: 'laboratories'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'service_order_lens_specs_lens_material_id_fkey'
+            isOneToOne: false
             columns: ['lens_material_id']
             referencedRelation: 'lens_materials'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'service_order_lens_specs_lens_type_id_fkey'
+            isOneToOne: false
             columns: ['lens_type_id']
             referencedRelation: 'lens_types'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'service_order_lens_specs_service_order_id_fkey'
+            isOneToOne: false
             columns: ['service_order_id']
             referencedRelation: 'service_orders'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'so_lens_specs_product_fk'
+            isOneToOne: false
             columns: ['product_id', 'tenant_id']
             referencedRelation: 'products'
             referencedColumns: ['id', 'tenant_id']
           },
           {
             foreignKeyName: 'so_lens_specs_sale_item_fk'
+            isOneToOne: false
             columns: ['sale_item_id', 'tenant_id']
             referencedRelation: 'sale_items'
             referencedColumns: ['id', 'tenant_id']
@@ -3533,18 +3689,21 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'service_order_lens_treatments_lens_spec_id_fkey'
+            isOneToOne: false
             columns: ['lens_spec_id']
             referencedRelation: 'service_order_lens_specs'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'service_order_lens_treatments_treatment_id_fkey'
+            isOneToOne: false
             columns: ['treatment_id']
             referencedRelation: 'lens_treatments'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'so_lens_treatments_sale_item_fk'
+            isOneToOne: false
             columns: ['sale_item_id', 'tenant_id']
             referencedRelation: 'sale_items'
             referencedColumns: ['id', 'tenant_id']
@@ -3603,6 +3762,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'service_order_prescription_me_service_order_prescription_i_fkey'
+            isOneToOne: false
             columns: ['service_order_prescription_id']
             referencedRelation: 'service_order_prescriptions'
             referencedColumns: ['id']
@@ -3665,18 +3825,21 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'service_order_prescriptions_created_by_fkey'
+            isOneToOne: false
             columns: ['created_by']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'service_order_prescriptions_service_order_id_fkey'
+            isOneToOne: true
             columns: ['service_order_id']
             referencedRelation: 'service_orders'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'service_order_prescriptions_source_prescription_id_fkey'
+            isOneToOne: false
             columns: ['source_prescription_id']
             referencedRelation: 'optical_prescriptions'
             referencedColumns: ['id']
@@ -3714,24 +3877,28 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'service_order_status_history_changed_by_fkey'
+            isOneToOne: false
             columns: ['changed_by']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'service_order_status_history_from_status_id_fkey'
+            isOneToOne: false
             columns: ['from_status_id']
             referencedRelation: 'service_order_statuses'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'service_order_status_history_service_order_id_fkey'
+            isOneToOne: false
             columns: ['service_order_id']
             referencedRelation: 'service_orders'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'service_order_status_history_to_status_id_fkey'
+            isOneToOne: false
             columns: ['to_status_id']
             referencedRelation: 'service_order_statuses'
             referencedColumns: ['id']
@@ -3763,18 +3930,21 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'service_order_status_transitions_from_status_id_fkey'
+            isOneToOne: false
             columns: ['from_status_id']
             referencedRelation: 'service_order_statuses'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'service_order_status_transitions_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'service_order_status_transitions_to_status_id_fkey'
+            isOneToOne: false
             columns: ['to_status_id']
             referencedRelation: 'service_order_statuses'
             referencedColumns: ['id']
@@ -3833,6 +4003,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'service_order_statuses_tenant_id_fkey'
+            isOneToOne: true
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -3918,54 +4089,63 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'service_orders_branch_id_fkey'
+            isOneToOne: false
             columns: ['branch_id']
             referencedRelation: 'branches'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'service_orders_created_by_fkey'
+            isOneToOne: false
             columns: ['created_by']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'service_orders_customer_fk'
+            isOneToOne: false
             columns: ['customer_id', 'tenant_id']
             referencedRelation: 'customers'
             referencedColumns: ['id', 'tenant_id']
           },
           {
             foreignKeyName: 'service_orders_frame_item_fk'
+            isOneToOne: false
             columns: ['frame_sale_item_id', 'tenant_id']
             referencedRelation: 'sale_items'
             referencedColumns: ['id', 'tenant_id']
           },
           {
             foreignKeyName: 'service_orders_frame_product_fk'
+            isOneToOne: false
             columns: ['frame_product_id', 'tenant_id']
             referencedRelation: 'products'
             referencedColumns: ['id', 'tenant_id']
           },
           {
             foreignKeyName: 'service_orders_sale_fk'
+            isOneToOne: false
             columns: ['sale_id', 'tenant_id']
             referencedRelation: 'sales'
             referencedColumns: ['id', 'tenant_id']
           },
           {
             foreignKeyName: 'service_orders_sale_id_fkey'
+            isOneToOne: false
             columns: ['sale_id']
             referencedRelation: 'sales'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'service_orders_status_id_fkey'
+            isOneToOne: false
             columns: ['status_id']
             referencedRelation: 'service_order_statuses'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'service_orders_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -4003,12 +4183,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'stock_balances_branch_id_fkey'
+            isOneToOne: false
             columns: ['branch_id']
             referencedRelation: 'branches'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'stock_balances_product_fk'
+            isOneToOne: false
             columns: ['product_id', 'tenant_id']
             referencedRelation: 'products'
             referencedColumns: ['id', 'tenant_id']
@@ -4023,7 +4205,7 @@ export type Database = {
           product_id: string
           movement_kind: 'purchase_in' | 'sale_out' | 'reserve' | 'release_reserve' | 'transfer_in' | 'transfer_out' | 'adjustment' | 'return_in' | 'loss' | 'lab_out' | 'lab_in'
           quantity: number
-          direction: '-1'
+          direction: number
           unit_cost: number | null
           related_entity: string | null
           related_entity_id: string | null
@@ -4038,7 +4220,7 @@ export type Database = {
           product_id: string
           movement_kind: 'purchase_in' | 'sale_out' | 'reserve' | 'release_reserve' | 'transfer_in' | 'transfer_out' | 'adjustment' | 'return_in' | 'loss' | 'lab_out' | 'lab_in'
           quantity: number
-          direction: '-1'
+          direction: number
           unit_cost?: number | null
           related_entity?: string | null
           related_entity_id?: string | null
@@ -4053,7 +4235,7 @@ export type Database = {
           product_id?: string
           movement_kind?: 'purchase_in' | 'sale_out' | 'reserve' | 'release_reserve' | 'transfer_in' | 'transfer_out' | 'adjustment' | 'return_in' | 'loss' | 'lab_out' | 'lab_in'
           quantity?: number
-          direction?: '-1'
+          direction?: number
           unit_cost?: number | null
           related_entity?: string | null
           related_entity_id?: string | null
@@ -4064,18 +4246,21 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'stock_movements_branch_id_fkey'
+            isOneToOne: false
             columns: ['branch_id']
             referencedRelation: 'branches'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'stock_movements_performed_by_fkey'
+            isOneToOne: false
             columns: ['performed_by']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'stock_movements_product_fk'
+            isOneToOne: false
             columns: ['product_id', 'tenant_id']
             referencedRelation: 'products'
             referencedColumns: ['id', 'tenant_id']
@@ -4134,12 +4319,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'suppliers_created_by_fkey'
+            isOneToOne: false
             columns: ['created_by']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'suppliers_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']
@@ -4216,18 +4403,21 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'user_branch_access_app_user_id_fkey'
+            isOneToOne: false
             columns: ['app_user_id']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'user_branch_access_branch_id_fkey'
+            isOneToOne: false
             columns: ['branch_id']
             referencedRelation: 'branches'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'user_branch_access_role_id_fkey'
+            isOneToOne: false
             columns: ['role_id']
             referencedRelation: 'roles'
             referencedColumns: ['id']
@@ -4280,24 +4470,28 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'user_invitations_accepted_user_id_fkey'
+            isOneToOne: false
             columns: ['accepted_user_id']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'user_invitations_invited_by_fkey'
+            isOneToOne: false
             columns: ['invited_by']
             referencedRelation: 'app_users'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'user_invitations_role_id_fkey'
+            isOneToOne: false
             columns: ['role_id']
             referencedRelation: 'roles'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'user_invitations_tenant_id_fkey'
+            isOneToOne: false
             columns: ['tenant_id']
             referencedRelation: 'tenants'
             referencedColumns: ['id']

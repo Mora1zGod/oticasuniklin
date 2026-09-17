@@ -79,7 +79,6 @@ export type ServiceOrderPrescriptionCylinderNotation = 'negative' | 'positive'
 export type ServiceOrderStatusStage = 'draft' | 'awaiting_prescription' | 'awaiting_lab' | 'in_production' | 'received_from_lab' | 'assembling' | 'quality_check' | 'ready_for_pickup' | 'delivered' | 'cancelled'
 export type ServiceOrderFrameSource = 'store_stock' | 'customer_own' | 'supplier_direct'
 export type ServiceOrderPriority = 'low' | 'normal' | 'high' | 'urgent'
-export type StockMovementDirection = '-1'
 export type StockMovementMovementKind = 'purchase_in' | 'sale_out' | 'reserve' | 'release_reserve' | 'transfer_in' | 'transfer_out' | 'adjustment' | 'return_in' | 'loss' | 'lab_out' | 'lab_in'
 export type SupplierRecordStatus = 'quick' | 'complete'
 

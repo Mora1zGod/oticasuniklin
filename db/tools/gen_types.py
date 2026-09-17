@@ -116,19 +116,50 @@ SINGLE_EQ = re.compile(r"^CHECK \(\(+([a-z_]+) = '([^']+)'::[a-z ]+\)+\)$", re.I
 LITERAL = re.compile(r"'((?:[^']|'')*)'::")
 
 
-def parse_check_union(definition: str) -> tuple[str, list[str]] | None:
-    """Extrai (coluna, valores) de um CHECK simples de dominio fechado.
+def split_top_level(body: str) -> list[str]:
+    """Divide os itens de um ARRAY[...] respeitando parenteses e aspas."""
+    parts, depth, in_quote, current = [], 0, False, ""
+    for ch in body:
+        if ch == "'":
+            in_quote = not in_quote
+        elif not in_quote and ch in "([":
+            depth += 1
+        elif not in_quote and ch in ")]":
+            depth -= 1
+        if ch == "," and depth == 0 and not in_quote:
+            parts.append(current.strip())
+            current = ""
+        else:
+            current += ch
+    if current.strip():
+        parts.append(current.strip())
+    return parts
 
-    Ignora CHECKs compostos (mais de uma coluna, IS NULL, comparacoes numericas):
-    esses sao regra de negocio, nao dominio de valores.
+
+def parse_check_union(definition: str) -> tuple[str, list[str]] | None:
+    """Extrai (coluna, valores) de um CHECK simples de dominio fechado de TEXTO.
+
+    Ignora CHECKs compostos (mais de uma coluna, IS NULL) e dominios numericos:
+    o Postgres formata inteiros negativos como '-1'::integer, e tratar isso como
+    literal de string produziria uma uniao errada e incompleta.
     """
     text = " ".join(definition.split())
 
     m = ANY_ARRAY.match(text)
     if m:
         column, body = m.group(1), m.group(2)
+        items = split_top_level(body)
         values = [v.replace("''", "'") for v in LITERAL.findall(body)]
-        if values and len(LITERAL.findall(body)) == len(values):
+        # todo item precisa ser um literal entre aspas, e de tipo textual
+        every_item_quoted = len(values) == len(items) and all(
+            item.startswith("'") for item in items
+        )
+        textual = all(
+            re.search(r"::\s*(text|citext|character varying|varchar|bpchar|character)",
+                      item)
+            for item in items
+        )
+        if values and every_item_quoted and textual:
             return column, values
 
     m = SINGLE_EQ.match(text)
@@ -218,6 +249,16 @@ def collect_foreign_keys() -> dict[str, list[dict]]:
                     on att.attrelid = con.conrelid and att.attnum = k.attnum
                ) as columns,
                fref.relname as referenced_table,
+               -- 1:1 quando as colunas da FK sao cobertas por um indice unico
+               -- na propria tabela (PK ou unique). O postgrest-js usa isso para
+               -- decidir entre objeto e array no embed.
+               exists (
+                 select 1 from pg_index i
+                 where i.indrelid = con.conrelid
+                   and i.indisunique
+                   and (select array_agg(k order by k) from unnest(i.indkey::int[]) k)
+                       = (select array_agg(k order by k) from unnest(con.conkey::int[]) k)
+               ) as is_one_to_one,
                (select array_agg(att.attname order by k.ord)
                   from unnest(con.confkey) with ordinality k(attnum, ord)
                   join pg_attribute att
@@ -368,6 +409,9 @@ def emit_database(tables, views, checks, fks, functions, comments) -> str:
         for fk in rels:
             out.append("          {")
             out.append(f"            foreignKeyName: '{fk['constraint_name']}'")
+            out.append(
+                f"            isOneToOne: {'true' if fk['is_one_to_one'] else 'false'}"
+            )
             out.append(f"            columns: [{', '.join(repr(c) for c in fk['columns'])}]")
             out.append(f"            referencedRelation: '{fk['referenced_table']}'")
             out.append(
