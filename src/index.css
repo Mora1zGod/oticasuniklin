@@ -164,6 +164,38 @@
   --s-series-5: #d55181;
 }
 
+/* --- Campos da tela de acesso ---------------------------------------------- */
+/* O login é escuro e pinta os campos com a cor da ótica. Quando o navegador
+   autopreenche, ele sobrescreve o fundo com um azul-claro seu, `!important` —
+   e aí some tudo que é claro em cima: o texto, o cadeado e o olho de ver a
+   senha. A sombra interna é a única forma de devolver o fundo da marca, e a
+   transição longa segura a cor que o Chrome reaplica ao focar. */
+.brand-field:autofill,
+.brand-field:-webkit-autofill,
+.brand-field:-webkit-autofill:hover,
+.brand-field:-webkit-autofill:focus,
+.brand-field:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--brand-text);
+  caret-color: var(--brand-text);
+  -webkit-box-shadow: inset 0 0 0 100px
+    color-mix(in oklab, var(--brand-background) 55%, var(--brand-surface));
+  transition: background-color 9999s ease-out;
+}
+
+/* Ver a senha é uma ação, não um enfeite: o botão ganha uma pastilha própria
+   para ser achado sem procurar — inclusive em cima do autofill. */
+.brand-eye {
+  color: var(--brand-text);
+  background-color: color-mix(in oklab, var(--brand-text) 12%, transparent);
+}
+.brand-eye:hover {
+  background-color: color-mix(in oklab, var(--brand-text) 24%, transparent);
+}
+.brand-eye:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
 html,
 body,
 #root {

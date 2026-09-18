@@ -127,8 +127,13 @@ export function LoginForm({
             type="button"
             onClick={() => onShowPasswordChange(!showPassword)}
             tabIndex={inert ? -1 : undefined}
-            className="absolute top-1/2 right-2.5 -translate-y-1/2 rounded-md p-1.5 opacity-55 transition hover:opacity-100"
+            className={
+              'brand-eye absolute top-1/2 right-2 -translate-y-1/2 flex items-center ' +
+              'justify-center rounded-lg transition ' +
+              (compact ? 'size-6' : 'size-8')
+            }
             aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+            title={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
           >
             {showPassword ? (
               <EyeOffIcon className={compact ? 'size-3.5' : 'size-4.5'} />
@@ -184,7 +189,7 @@ export function LoginForm({
 }
 
 const field = (compact: boolean): string =>
-  'w-full rounded-xl border outline-none transition ' +
+  'brand-field w-full rounded-xl border outline-none transition ' +
   'placeholder:opacity-40 focus:border-[var(--brand-primary)] ' +
   (compact ? 'py-1.5 pr-2.5 pl-8 text-xs' : 'py-2.5 pr-3 pl-10 text-sm')
 
