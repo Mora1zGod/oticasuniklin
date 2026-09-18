@@ -25,6 +25,47 @@ type BrandingInsert = Database['public']['Tables']['tenant_branding']['Insert']
 const ACCEPTED = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml', 'image/x-icon']
 const MAX_BYTES = 2 * 1024 * 1024
 
+/**
+ * Onde o rascunho espera enquanto não é salvo.
+ *
+ * Nem tudo que interrompe a edição está sob o controle do app: o navegador
+ * descarta a aba para liberar memória, alguém aperta F5, a máquina hiberna.
+ * Em qualquer um desses casos a página volta do zero — e quem estava há dez
+ * minutos ajustando as cores da ótica recomeça do nada. O rascunho fica
+ * guardado no navegador, por ótica, e só sai daqui quando é salvo ou descartado.
+ *
+ * As imagens escolhidas NÃO cabem aqui: um arquivo do disco não sobrevive ao
+ * fechamento da página. Por isso a tela avisa, em vez de fingir que guardou.
+ */
+const DRAFT_KEY = 'uniklin.branding.draft'
+
+function readDraft(tenantId: string): Branding | null {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY)
+    if (!raw) return null
+    const saved = JSON.parse(raw) as { tenantId?: string; draft?: Branding }
+    return saved.tenantId === tenantId && saved.draft ? saved.draft : null
+  } catch {
+    return null
+  }
+}
+
+function writeDraft(tenantId: string, draft: Branding): void {
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ tenantId, draft }))
+  } catch {
+    // sem storage o rascunho não sobrevive à recarga; editar continua funcionando
+  }
+}
+
+function clearDraft(): void {
+  try {
+    localStorage.removeItem(DRAFT_KEY)
+  } catch {
+    // idem
+  }
+}
+
 const EXTENSIONS: Record<string, string> = {
   'image/png': 'png',
   'image/jpeg': 'jpg',
@@ -51,6 +92,7 @@ export function BrandingPage() {
   const [files, setFiles] = useState<Partial<Record<BrandingImageField, File>>>({})
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
+  const [recovered, setRecovered] = useState(false)
 
   const allowed = can('admin.manage')
 
@@ -70,10 +112,21 @@ export function BrandingPage() {
     },
   })
 
-  // A edição começa do que está salvo; recarregar depois do save traz o novo.
+  // A edição começa do que está salvo — ou do rascunho que ficou de uma sessão
+  // interrompida. Roda uma vez só: depois disso quem manda no rascunho é quem
+  // está digitando, e uma revalidação da query não pode apagar o trabalho dele.
   useEffect(() => {
-    if (current.data) setDraft(current.data)
-  }, [current.data])
+    if (!current.data) return
+    setDraft((previous) => {
+      if (previous) return previous
+      const pendente = readDraft(ctx.tenant_id)
+      if (pendente && JSON.stringify(pendente) !== JSON.stringify(current.data)) {
+        setRecovered(true)
+        return pendente
+      }
+      return current.data
+    })
+  }, [current.data, ctx.tenant_id])
 
   // Imagem escolhida ainda não existe no servidor: o preview usa uma URL local.
   const localUrls = useMemo(() => {
@@ -122,9 +175,13 @@ export function BrandingPage() {
       if (err) throw err
       return next
     },
-    onSuccess: async () => {
+    onSuccess: async (salvo) => {
       setFiles({})
       setSaved(true)
+      setRecovered(false)
+      clearDraft()
+      // O que foi para o banco passa a ser o ponto de partida da edição.
+      if (salvo) setDraft(salvo)
       await queryClient.invalidateQueries({ queryKey: ['tenant-branding'] })
       await refresh()
     },
@@ -149,7 +206,9 @@ export function BrandingPage() {
   const preview: Branding = { ...draft, ...localUrls }
 
   const set = (patch: Partial<Branding>) => {
-    setDraft({ ...draft, ...patch })
+    const next = { ...draft, ...patch }
+    setDraft(next)
+    writeDraft(ctx.tenant_id, next)
     setSaved(false)
   }
 
@@ -196,6 +255,8 @@ export function BrandingPage() {
                 setFiles({})
                 setError(null)
                 setSaved(false)
+                setRecovered(false)
+                clearDraft()
               }}
               disabled={!dirty || save.isPending}
             >
@@ -204,12 +265,17 @@ export function BrandingPage() {
             <Button
               variant="secondary"
               onClick={() => {
-                setDraft({
+                // Voltar ao padrão também é uma alteração por salvar: se a
+                // página recarregar agora, o que tem que voltar é o padrão
+                // restaurado, não o rascunho de antes.
+                const padrao = {
                   ...DEFAULT_BRANDING,
                   tenantId: draft.tenantId,
                   slug: draft.slug,
                   companyName: ctx.tenant.trade_name,
-                })
+                }
+                setDraft(padrao)
+                writeDraft(ctx.tenant_id, padrao)
                 setFiles({})
                 setError(null)
                 setSaved(false)
@@ -228,6 +294,15 @@ export function BrandingPage() {
       {error && (
         <div className="mb-4">
           <Alert>{error}</Alert>
+        </div>
+      )}
+      {recovered && (
+        <div className="mb-4">
+          <Alert tone="warning">
+            Recuperamos o que você estava editando antes da página recarregar —
+            confira e salve. As imagens que você tinha escolhido precisam ser
+            escolhidas de novo: arquivo do computador não fica guardado.
+          </Alert>
         </div>
       )}
       {saved && !dirty && (

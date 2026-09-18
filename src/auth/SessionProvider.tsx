@@ -1,4 +1,12 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 
@@ -60,7 +68,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [branchId, setBranchIdState] = useState<string | null>(null)
   const [tenants, setTenants] = useState<TenantAccess[]>([])
 
+  /** De quem é o contexto que já está carregado. */
+  const loadedFor = useRef<string | null>(null)
+
   async function loadContext(session: Session | null) {
+    loadedFor.current = session?.user.id ?? null
     if (!session) {
       setContext(null)
       setBranchIdState(null)
@@ -96,8 +108,20 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       void loadContext(data.session)
     })
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       setAuthSession(session)
+
+      // Voltar de outra aba faz o Supabase renovar o token, e isso chega aqui
+      // como um evento. Recarregar o contexto nessa hora custaria caro: a tela
+      // protegida volta para o carregando, TODA a árvore desmonta, e o
+      // formulário que a pessoa estava preenchendo morre junto — do lado de cá
+      // parece que a página recarregou sozinha.
+      //
+      // Um token novo não muda quem está logado nem em qual ótica. Só recarrega
+      // o contexto quando a PESSOA muda: entrou, saiu ou trocou de conta.
+      if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') return
+      if ((session?.user.id ?? null) === loadedFor.current) return
+
       setLoading(true)
       void loadContext(session)
     })
