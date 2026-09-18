@@ -165,6 +165,8 @@ $$;
 -- Só o cadastro da loja — nome, endereço, situação. Nada de cliente, venda,
 -- receita ou financeiro das lojas: para isso a dona entra na loja, e lá vale a
 -- RLS normal.
+-- Reaplicável: rodar esta migration duas vezes não pode falhar.
+drop policy if exists tenants_platform_owner_read on public.tenants;
 create policy tenants_platform_owner_read on public.tenants
   for select
   using (
@@ -172,6 +174,7 @@ create policy tenants_platform_owner_read on public.tenants
     and (provider_tenant_id = public.current_tenant_id() or is_platform_owner)
   );
 
+drop policy if exists tenants_platform_owner_update on public.tenants;
 create policy tenants_platform_owner_update on public.tenants
   for update
   using (public.is_platform_owner() and provider_tenant_id = public.current_tenant_id())
