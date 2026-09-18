@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { resolveTenantBase } from '@/branding/branding'
 import type { Database } from '@/types/database'
 
 const url = import.meta.env.VITE_SUPABASE_URL
@@ -54,10 +55,21 @@ assertPublicKey(anonKey)
  * Cliente único do app. A chave publishable é pública por design — quem protege
  * os dados é a RLS, habilitada em todas as tabelas de negócio (ADR-008).
  */
+/**
+ * Qual ótica esta aba está operando.
+ *
+ * Vai como cabeçalho em toda requisição porque o endereço é que identifica a
+ * ótica (uniklin.com/nomedaotica). Quem tem acesso a mais de uma — a ótica que
+ * opera a plataforma — muda de ótica mudando de endereço, e o banco confere:
+ * o cabeçalho escolhe entre as óticas da pessoa, nunca dá acesso a uma nova.
+ */
+const tenantSlug = resolveTenantBase().slug
+
 export const supabase = createClient<Database>(url, anonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
   },
+  ...(tenantSlug ? { global: { headers: { 'x-tenant-slug': tenantSlug } } } : {}),
 })

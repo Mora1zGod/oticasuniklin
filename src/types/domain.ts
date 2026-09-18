@@ -54,6 +54,7 @@ export type OpticalPrescriptionStatus = 'draft' | 'active' | 'superseded' | 'voi
 export type OpticalPrescriptionVisionUse = 'far' | 'near' | 'multifocal' | 'bifocal' | 'occupational' | 'intermediate'
 export type PayableStatus = 'open' | 'partially_paid' | 'paid' | 'overdue' | 'cancelled'
 export type PaymentMethodKind = 'cash' | 'debit_card' | 'credit_card' | 'pix' | 'bank_slip' | 'store_credit' | 'check' | 'transfer' | 'installment_plan' | 'voucher'
+export type PlatformInvoiceStatus = 'open' | 'paid' | 'overdue' | 'cancelled'
 export type PrescriberCouncilType = 'CRM' | 'CRO' | 'CROf' | 'OUTRO'
 export type PrescriberKind = 'ophthalmologist' | 'optometrist' | 'other'
 export type PrescriberRecordStatus = 'quick' | 'complete'

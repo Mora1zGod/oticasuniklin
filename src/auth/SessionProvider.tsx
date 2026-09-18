@@ -25,6 +25,15 @@ export type AppContextReady = {
 
 export type AppContext = AppContextReady | { status: 'needs_onboarding' }
 
+/** Uma ótica que este login alcança. Mais de uma só na dona da plataforma. */
+export type TenantAccess = {
+  tenant_id: string
+  slug: string
+  trade_name: string
+  is_platform_owner: boolean
+  is_tenant_admin: boolean
+}
+
 type SessionState = {
   authSession: Session | null
   context: AppContext | null
@@ -33,6 +42,10 @@ type SessionState = {
   branchId: string | null
   setBranchId: (id: string) => void
   can: (permission: string) => boolean
+  /** Óticas que este login alcança, para o seletor do cabeçalho. */
+  tenants: TenantAccess[]
+  /** Esta ótica opera a plataforma (cadastra e atende as outras). */
+  isPlatformOwner: boolean
   reload: () => Promise<void>
   signOut: () => Promise<void>
 }
@@ -45,11 +58,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [context, setContext] = useState<AppContext | null>(null)
   const [loading, setLoading] = useState(true)
   const [branchId, setBranchIdState] = useState<string | null>(null)
+  const [tenants, setTenants] = useState<TenantAccess[]>([])
 
   async function loadContext(session: Session | null) {
     if (!session) {
       setContext(null)
       setBranchIdState(null)
+      setTenants([])
       setLoading(false)
       return
     }
@@ -65,6 +80,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         const valid = ctx.branches.find((b) => b.id === stored)
         const fallback = ctx.branches.find((b) => b.is_default) ?? ctx.branches[0]
         setBranchIdState(valid?.id ?? fallback?.id ?? null)
+
+        // As óticas do login: uma para a loja cliente, várias para quem opera
+        // a plataforma. O banco devolve só o que a pessoa já podia acessar.
+        const { data: mine } = await supabase.rpc('my_tenants')
+        setTenants((mine ?? []) as TenantAccess[])
       }
     }
     setLoading(false)
@@ -97,6 +117,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       },
       can: (permission: string) =>
         ready ? ready.is_tenant_admin || ready.permissions.includes(permission) : false,
+      tenants,
+      isPlatformOwner: tenants.some(
+        (tenant) => tenant.is_platform_owner && tenant.tenant_id === ready?.tenant_id,
+      ),
       reload: async () => {
         setLoading(true)
         await loadContext(authSession)
@@ -106,7 +130,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem(BRANCH_STORAGE_KEY)
       },
     }
-  }, [authSession, context, loading, branchId])
+  }, [authSession, context, loading, branchId, tenants])
 
   return <SessionCtx.Provider value={value}>{children}</SessionCtx.Provider>
 }

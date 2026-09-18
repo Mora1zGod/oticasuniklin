@@ -346,7 +346,7 @@ const normalize = (value: string): string =>
 export function AsideRanking({
   items,
 }: {
-  items: { key: string; rank?: number; title: string; detail?: string; value: ReactNode }[]
+  items: { key: string; rank?: ReactNode; title: string; detail?: string; value: ReactNode }[]
 }) {
   if (items.length === 0) {
     return <p className="py-6 text-center text-xs text-fg-subtle">Nada a mostrar ainda.</p>

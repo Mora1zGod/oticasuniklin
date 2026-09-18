@@ -48,9 +48,24 @@ export type NavGroup = {
   id: string
   label: string
   items: NavItem[]
+  /**
+   * Grupo que só existe para a ótica que opera a plataforma. Não é permissão
+   * dentro da ótica: é uma relação entre óticas (ver 0014), por isso não cabe
+   * no `permission` do item.
+   */
+  platformOnly?: boolean
 }
 
 export const NAV: NavGroup[] = [
+  {
+    id: 'plataforma',
+    label: 'Plataforma',
+    platformOnly: true,
+    items: [
+      { to: '/plataforma/oticas', label: 'Óticas atendidas', icon: IconBuilding },
+      { to: '/plataforma/cobrancas', label: 'Cobranças', icon: IconCoin },
+    ],
+  },
   {
     id: 'clientes',
     label: 'Clientes',

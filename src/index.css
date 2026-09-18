@@ -34,17 +34,26 @@
   --color-ink-900: oklch(0.18 0.03 262);
   --color-ink-950: oklch(0.14 0.025 264);
 
-  /* Ação: reservado ao que o operador pode clicar. */
-  --color-brand-50: oklch(0.97 0.018 245);
-  --color-brand-100: oklch(0.93 0.04 245);
-  --color-brand-200: oklch(0.87 0.075 245);
-  --color-brand-300: oklch(0.78 0.115 246);
-  --color-brand-400: oklch(0.68 0.15 247);
-  --color-brand-500: oklch(0.60 0.17 248);
-  --color-brand-600: oklch(0.53 0.175 250);
-  --color-brand-700: oklch(0.45 0.155 252);
-  --color-brand-800: oklch(0.37 0.125 254);
-  --color-brand-900: oklch(0.30 0.095 256);
+  /* Ação: reservado ao que o operador pode clicar.
+
+     A escala inteira NASCE de `--brand-primary`, a cor que a ótica escolhe na
+     tela de Identidade Visual. É o que faz a personalização alcançar o sistema
+     todo: mudar a primária repinta botão, item ativo do menu, link e foco —
+     sem uma única cor fixa espalhada pelas telas.
+
+     Os degraus mais claros são a primária diluída no branco; os mais escuros,
+     a primária puxada para o preto. As proporções foram calculadas para manter
+     a mesma curva de luminosidade da escala original. */
+  --color-brand-50: color-mix(in oklab, var(--brand-primary) 8%, white);
+  --color-brand-100: color-mix(in oklab, var(--brand-primary) 18%, white);
+  --color-brand-200: color-mix(in oklab, var(--brand-primary) 34%, white);
+  --color-brand-300: color-mix(in oklab, var(--brand-primary) 58%, white);
+  --color-brand-400: color-mix(in oklab, var(--brand-primary) 84%, white);
+  --color-brand-500: var(--brand-primary);
+  --color-brand-600: color-mix(in oklab, var(--brand-primary) 85%, black);
+  --color-brand-700: color-mix(in oklab, var(--brand-primary) 72%, black);
+  --color-brand-800: color-mix(in oklab, var(--brand-primary) 58%, black);
+  --color-brand-900: color-mix(in oklab, var(--brand-primary) 46%, black);
 
   /* --- Tokens semânticos ------------------------------------------------- */
   /* Uma indireção: o utilitário aponta para a variável de tema, trocada em
@@ -89,6 +98,16 @@
 :root {
   color-scheme: light;
 
+  /* Marca padrão do produto. O BrandingProvider sobrescreve estas seis no
+     <html> assim que a ótica é conhecida — antes disso (primeira pintura, tela
+     de login de um endereço desconhecido) valem os valores abaixo. */
+  --brand-primary: #2a7fff;
+  --brand-secondary: #0f2744;
+  --brand-accent: #38bdf8;
+  --brand-background: #0a1628;
+  --brand-surface: #0f2137;
+  --brand-text: #e8eef7;
+
   --s-canvas: oklch(0.97 0.006 250);
   --s-surface: oklch(1 0 0);
   --s-surface-raised: oklch(1 0 0);
@@ -98,7 +117,8 @@
   --s-fg: oklch(0.18 0.03 262);
   --s-fg-muted: oklch(0.48 0.04 254);
   --s-fg-subtle: oklch(0.65 0.03 252);
-  --s-sidebar: oklch(0.18 0.03 262);
+  /* O menu é o painel escuro da marca: sai da cor secundária da ótica. */
+  --s-sidebar: var(--brand-secondary);
   --s-sidebar-fg: oklch(0.86 0.02 250);
 
   --shadow-tint: 262 30% 10%;
@@ -131,7 +151,8 @@
   --s-fg: oklch(0.93 0.012 250);
   --s-fg-muted: oklch(0.72 0.025 252);
   --s-fg-subtle: oklch(0.58 0.03 254);
-  --s-sidebar: oklch(0.125 0.02 264);
+  /* No escuro o menu afunda um degrau a mais que no claro, como o resto. */
+  --s-sidebar: color-mix(in oklab, var(--brand-secondary) 78%, black);
   --s-sidebar-fg: oklch(0.80 0.025 252);
 
   /* Mesmas cinco cores, repassadas para o fundo escuro — não é o claro

@@ -62,7 +62,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'app_users_auth_user_id_fkey'
-            isOneToOne: true
+            isOneToOne: false
             columns: ['auth_user_id']
             referencedRelation: 'users'
             referencedColumns: ['id']
@@ -2389,6 +2389,64 @@ export type Database = {
         Relationships: [
         ]
       }
+      /** Mensalidade que a plataforma cobra da loja cliente. Nao se confunde com receivables, que e o que a loja cobra dos clientes dela. */
+      platform_invoices: {
+        Row: {
+          id: string
+          provider_tenant_id: string
+          client_tenant_id: string
+          reference_month: string
+          due_date: string
+          amount: number
+          paid_amount: number
+          status: 'open' | 'paid' | 'overdue' | 'cancelled'
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          provider_tenant_id: string
+          client_tenant_id: string
+          reference_month: string
+          due_date: string
+          amount: number
+          paid_amount?: number
+          status?: 'open' | 'paid' | 'overdue' | 'cancelled'
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          provider_tenant_id?: string
+          client_tenant_id?: string
+          reference_month?: string
+          due_date?: string
+          amount?: number
+          paid_amount?: number
+          status?: 'open' | 'paid' | 'overdue' | 'cancelled'
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'platform_invoices_client_tenant_id_fkey'
+            isOneToOne: false
+            columns: ['client_tenant_id']
+            referencedRelation: 'tenants'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'platform_invoices_provider_tenant_id_fkey'
+            isOneToOne: false
+            columns: ['provider_tenant_id']
+            referencedRelation: 'tenants'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       prescribers: {
         Row: {
           id: string
@@ -4458,6 +4516,10 @@ export type Database = {
           created_at: string
           updated_at: string
           deleted_at: string | null
+          is_platform_owner: boolean
+          provider_tenant_id: string | null
+          subscription_amount: number | null
+          subscription_due_day: number | null
         }
         Insert: {
           id?: string
@@ -4470,6 +4532,10 @@ export type Database = {
           created_at?: string
           updated_at?: string
           deleted_at?: string | null
+          is_platform_owner?: boolean
+          provider_tenant_id?: string | null
+          subscription_amount?: number | null
+          subscription_due_day?: number | null
         }
         Update: {
           id?: string
@@ -4482,8 +4548,19 @@ export type Database = {
           created_at?: string
           updated_at?: string
           deleted_at?: string | null
+          is_platform_owner?: boolean
+          provider_tenant_id?: string | null
+          subscription_amount?: number | null
+          subscription_due_day?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: 'tenants_provider_tenant_id_fkey'
+            isOneToOne: false
+            columns: ['provider_tenant_id']
+            referencedRelation: 'tenants'
+            referencedColumns: ['id']
+          },
         ]
       }
       /** Define em quais filiais o usuario opera. O cliente e do tenant, mas a visibilidade operacional pode ser restringida por filial via politicas. */
@@ -4703,6 +4780,11 @@ export type Database = {
         Args: { p_slug?: string | null }
         Returns: { tenant_id: string; slug: string; trade_name: string; company_name: string; short_name: string; subtitle: string; logo_url: string; logo_icon_url: string; favicon_url: string; primary_color: string; secondary_color: string; accent_color: string; background_color: string; card_color: string; text_color: string; login_image_url: string; login_background_url: string; login_headline: string; login_highlight: string; login_description: string; benefit_1: string; benefit_2: string; benefit_3: string; login_footnote: string }[]
       }
+      /** create_client_tenant(p_slug text, p_trade_name text, p_legal_name text DEFAULT NULL::text, p_tax_document text DEFAULT NULL::text, p_branch_name text DEFAULT 'Matriz'::text) returns uuid */
+      create_client_tenant: {
+        Args: { p_slug: string; p_trade_name: string; p_legal_name?: string | null; p_tax_document?: string | null; p_branch_name?: string }
+        Returns: string
+      }
       /** current_app_user_id() returns uuid */
       current_app_user_id: {
         Args: Record<string, never>
@@ -4743,6 +4825,11 @@ export type Database = {
         Args: { p_permission_code: string }
         Returns: boolean
       }
+      /** is_platform_owner() returns boolean */
+      is_platform_owner: {
+        Args: Record<string, never>
+        Returns: boolean
+      }
       /** is_valid_cnpj(p_value text) returns boolean */
       is_valid_cnpj: {
         Args: { p_value: string }
@@ -4758,10 +4845,20 @@ export type Database = {
         Args: { p_customer_id: string }
         Returns: string
       }
+      /** my_tenants() returns TABLE(tenant_id uuid, slug text, trade_name text, is_platform_owner boolean, is_tenant_admin boolean) */
+      my_tenants: {
+        Args: Record<string, never>
+        Returns: { tenant_id: string; slug: string; trade_name: string; is_platform_owner: boolean; is_tenant_admin: boolean }[]
+      }
       /** next_document_number(p_branch_id uuid, p_document_type text) returns bigint */
       next_document_number: {
         Args: { p_branch_id: string; p_document_type: string }
         Returns: number
+      }
+      /** requested_tenant_slug() returns text */
+      requested_tenant_slug: {
+        Args: Record<string, never>
+        Returns: string
       }
       /** resolve_catalog(p_catalog_key text, p_tenant_id uuid) returns TABLE(id uuid, code text, label text, sort_order integer, is_platform boolean) */
       resolve_catalog: {

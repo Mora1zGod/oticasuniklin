@@ -307,6 +307,13 @@ export function BrandingPage() {
                   onChange={(value) => set({ [field]: value } as Partial<Branding>)}
                 />
               ))}
+
+              {isHexColor(draft.secondaryColor) && !isDarkEnough(draft.secondaryColor) && (
+                <Alert tone="warning">
+                  A cor secundária está clara demais para o fundo do menu: o texto
+                  branco dele ficaria ilegível. Escolha um tom mais escuro.
+                </Alert>
+              )}
             </div>
           </Card>
 
@@ -414,8 +421,8 @@ export function BrandingPage() {
 // ---------------------------------------------------------------------------
 
 const COLORS: { field: 'primaryColor' | 'secondaryColor' | 'accentColor' | 'backgroundColor' | 'cardColor' | 'textColor'; label: string; hint: string }[] = [
-  { field: 'primaryColor', label: 'Primária', hint: 'Botões, destaques e a palavra da frase principal.' },
-  { field: 'secondaryColor', label: 'Secundária', hint: 'Apoio da cor primária.' },
+  { field: 'primaryColor', label: 'Primária', hint: 'Botões, item ativo do menu, links e foco — no sistema inteiro.' },
+  { field: 'secondaryColor', label: 'Secundária', hint: 'Fundo do menu lateral. Precisa ser escura: o texto dele é claro.' },
   { field: 'accentColor', label: 'Destaque', hint: 'Links e ícones.' },
   { field: 'backgroundColor', label: 'Fundo', hint: 'Fundo da tela de login.' },
   { field: 'cardColor', label: 'Cards', hint: 'Fundo do cartão de acesso.' },
@@ -556,4 +563,28 @@ function PreviewFrame({ branding }: { branding: Branding }) {
       </div>
     </div>
   )
+}
+
+/**
+ * A cor aguenta texto branco por cima?
+ *
+ * O menu lateral tem texto claro, e a cor secundária é o fundo dele. Uma
+ * secundária clara não "fica feia": deixa o menu ilegível — por isso a tela
+ * avisa antes de salvar, em vez de descobrir depois no celular do cliente.
+ *
+ * Luminância relativa da WCAG; abaixo de 0,28 o contraste com o branco passa
+ * de 4,5:1, que é o piso para texto pequeno.
+ */
+function isDarkEnough(hex: string): boolean {
+  const value = hex.replace('#', '')
+  const full =
+    value.length === 3
+      ? value.split('').map((part) => part + part).join('')
+      : value
+  const channel = (start: number): number => {
+    const srgb = parseInt(full.slice(start, start + 2), 16) / 255
+    return srgb <= 0.03928 ? srgb / 12.92 : ((srgb + 0.055) / 1.055) ** 2.4
+  }
+  const luminance = 0.2126 * channel(0) + 0.7152 * channel(2) + 0.0722 * channel(4)
+  return (1.05 / (luminance + 0.05)) >= 4.5
 }

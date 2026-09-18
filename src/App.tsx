@@ -59,6 +59,9 @@ import {
 } from '@/pages/admin/AdminPages'
 import { BrandingPage } from '@/pages/admin/BrandingPage'
 
+import { PlatformStoresPage } from '@/pages/platform/StoresPage'
+import { PlatformInvoicesPage } from '@/pages/platform/InvoicesPage'
+
 export function App() {
   return (
     <Routes>
@@ -73,6 +76,10 @@ export function App() {
         }
       >
         <Route index element={<DashboardPage />} />
+
+        {/* Plataforma — só a ótica que opera o sistema chega aqui */}
+        <Route path="plataforma/oticas" element={<PlatformStoresPage />} />
+        <Route path="plataforma/cobrancas" element={<PlatformInvoicesPage />} />
 
         {/* Clientes */}
         <Route path="clientes" element={<CustomerListPage />} />

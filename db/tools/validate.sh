@@ -38,4 +38,7 @@ $PSQL -d "$DB" -f "$ROOT/db/tools/scenario_onboarding.sql"
 echo "==> cenario de validacao (item 12 do briefing)"
 $PSQL -d "$DB" -f "$ROOT/db/tools/scenario_item12.sql"
 
+echo "==> cenario da plataforma (lojas clientes e isolamento)"
+$PSQL -d "$DB" -f "$ROOT/db/tools/scenario_platform.sql"
+
 echo "==> OK"
