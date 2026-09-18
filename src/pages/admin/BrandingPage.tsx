@@ -245,7 +245,12 @@ export function BrandingPage() {
     <>
       <PageHeader
         title="Identidade visual"
-        subtitle="Nome, logo, cores e textos da tela de login desta ótica. Cada ótica tem a sua."
+        subtitle={
+          // Qual ótica está sendo editada, dita sem rodeio. Quem atende várias
+          // lojas precisa ver isto antes de salvar, não depois.
+          `Editando a marca de ${ctx.tenant.trade_name} (/${ctx.tenant.slug}). ` +
+          'Nome, logo, cores e textos da tela de login. Cada ótica tem a sua.'
+        }
         actions={
           <>
             <Button

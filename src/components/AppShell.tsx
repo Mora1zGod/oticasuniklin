@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useSession } from '@/auth/SessionProvider'
 import { useBranding } from '@/branding/BrandingProvider'
+import { resolveTenantBase } from '@/branding/branding'
 import { useTheme, type ThemeChoice } from '@/theme/ThemeProvider'
 import { NAV, breadcrumbFor, type NavGroup, type NavItem } from './nav'
 import { GlobalSearch, useGlobalSearchHotkey } from './GlobalSearch'
@@ -424,6 +425,8 @@ export function AppShell() {
               'sm:pl-[max(1.5rem,env(safe-area-inset-left))] sm:pr-[max(1.5rem,env(safe-area-inset-right))]'
             }
           >
+            <TenantMismatchNotice slug={context.tenant.slug} />
+
             {trail.length > 0 && (
               <nav
                 aria-label="Você está em"
@@ -598,6 +601,46 @@ function MenuGroup({
           ))}
         </div>
       )}
+    </div>
+  )
+}
+
+/**
+ * O endereço pede uma ótica; a sessão abriu outra. E agora?
+ *
+ * O banco escolhe a ótica pelo endereço, mas só entre aquelas em que a pessoa
+ * tem cadastro — é o que impede um endereço digitado à mão de abrir a loja dos
+ * outros. O efeito colateral é que um endereço que ela NÃO alcança não dá erro:
+ * a sessão simplesmente continua na ótica de sempre.
+ *
+ * Silêncio aqui é perigoso. Quem digita /umaloja/ e vê o sistema abrir acredita
+ * que está dentro dela — e pode acabar editando a marca, o cadastro ou o
+ * financeiro da ótica errada achando que mexe na certa. Então a tela diz.
+ */
+function TenantMismatchNotice({ slug }: { slug: string }) {
+  const pedido = resolveTenantBase().slug
+  if (!pedido || pedido === slug) return null
+
+  return (
+    <div
+      role="alert"
+      className="mb-4 rounded-card border border-red-300 bg-red-50 px-4 py-3 text-sm dark:border-red-500/40 dark:bg-red-500/10"
+    >
+      <p className="font-semibold text-red-900 dark:text-red-200">
+        Você não está na ótica que o endereço pede.
+      </p>
+      <p className="mt-1 text-red-800 dark:text-red-300">
+        O endereço pede <code className="font-mono">/{pedido}</code>, mas esta sessão
+        está aberta em <code className="font-mono">/{slug}</code> — ou esse endereço não
+        existe, ou você ainda não tem cadastro nele. Tudo que você fizer aqui vale para{' '}
+        <strong>/{slug}</strong>.
+      </p>
+      <a
+        href={`/${slug}/`}
+        className="mt-2 inline-block font-medium text-red-900 underline dark:text-red-200"
+      >
+        Ir para o endereço desta ótica
+      </a>
     </div>
   )
 }
