@@ -496,7 +496,24 @@ begin
     raise exception 'FALHOU historico de status: % linhas (esperado 7)', v_history;
   end if;
 
-  raise notice '[A][B][C][D][E] OK — snapshot, versionamento, imutabilidade e estoque validados';
+  -- [E2] medidas de adaptacao tambem sao imutaveis depois da emissao
+  begin
+    update public.optical_prescriptions set vertex_distance_mm = 13
+     where id = 'e0000000-0000-0000-0000-000000000001';
+    raise exception '[E2] FALHOU: receita emitida aceitou mudar a distancia vertice';
+  exception when check_violation then
+    null;
+  end;
+
+  begin
+    update public.optical_prescription_measures set fitting_height_mm = 22
+     where prescription_id = 'e0000000-0000-0000-0000-000000000001';
+    raise exception '[E2] FALHOU: receita emitida aceitou mudar a altura de montagem';
+  exception when check_violation then
+    null;
+  end;
+
+  raise notice '[A][B][C][D][E] OK — snapshot, versionamento, imutabilidade (inclusive das medidas de adaptacao) e estoque validados';
 end;
 $$;
 

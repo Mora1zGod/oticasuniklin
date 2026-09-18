@@ -2000,6 +2000,7 @@ export type Database = {
           visual_acuity: string | null
           notes: string | null
           created_at: string
+          fitting_height_mm: number | null
         }
         Insert: {
           id?: string
@@ -2018,6 +2019,7 @@ export type Database = {
           visual_acuity?: string | null
           notes?: string | null
           created_at?: string
+          fitting_height_mm?: number | null
         }
         Update: {
           id?: string
@@ -2036,6 +2038,7 @@ export type Database = {
           visual_acuity?: string | null
           notes?: string | null
           created_at?: string
+          fitting_height_mm?: number | null
         }
         Relationships: [
           {
@@ -2073,6 +2076,9 @@ export type Database = {
           created_by: string | null
           created_at: string
           updated_at: string
+          vertex_distance_mm: number | null
+          pantoscopic_angle_deg: number | null
+          frame_wrap_angle_deg: number | null
         }
         Insert: {
           id?: string
@@ -2098,6 +2104,9 @@ export type Database = {
           created_by?: string | null
           created_at?: string
           updated_at?: string
+          vertex_distance_mm?: number | null
+          pantoscopic_angle_deg?: number | null
+          frame_wrap_angle_deg?: number | null
         }
         Update: {
           id?: string
@@ -2123,6 +2132,9 @@ export type Database = {
           created_by?: string | null
           created_at?: string
           updated_at?: string
+          vertex_distance_mm?: number | null
+          pantoscopic_angle_deg?: number | null
+          frame_wrap_angle_deg?: number | null
         }
         Relationships: [
           {

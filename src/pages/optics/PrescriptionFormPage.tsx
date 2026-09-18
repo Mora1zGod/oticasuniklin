@@ -21,6 +21,7 @@ import {
   IconFile,
   IconGlasses,
   IconIdea,
+  IconLayers,
 } from '@/components/ui/icons'
 import { describeError } from '@/lib/errors'
 import { formatDate, formatDocument, formatPhone, today } from '@/lib/format'
@@ -35,6 +36,8 @@ type MeasureForm = {
   axis_deg: string
   addition_dpt: string
   dnp_mm: string
+  /** Altura INDICADA pelo prescritor. A medida na armação escolhida é da O.S. */
+  fitting_height_mm: string
 }
 
 const emptyMeasure = (): MeasureForm => ({
@@ -43,6 +46,7 @@ const emptyMeasure = (): MeasureForm => ({
   axis_deg: '',
   addition_dpt: '',
   dnp_mm: '',
+  fitting_height_mm: '',
 })
 
 const numeric = (v: string): number | null => {
@@ -80,6 +84,9 @@ export function PrescriptionFormPage() {
   )
   const [cylinderNotation, setCylinderNotation] = useState<'negative' | 'positive'>('negative')
   const [notes, setNotes] = useState('')
+  const [vertexDistance, setVertexDistance] = useState('')
+  const [pantoscopic, setPantoscopic] = useState('')
+  const [frameWrap, setFrameWrap] = useState('')
   const [error, setError] = useState<string | null>(null)
 
   const [measures, setMeasures] = useState<Record<`${Eye}-${Zone}`, MeasureForm>>({
@@ -120,6 +127,9 @@ export function PrescriptionFormPage() {
       setPrescriberId(data.prescriber_id ?? '')
       setVisionUse(data.vision_use)
       setCylinderNotation(data.cylinder_notation)
+      setVertexDistance(data.vertex_distance_mm?.toString() ?? '')
+      setPantoscopic(data.pantoscopic_angle_deg?.toString() ?? '')
+      setFrameWrap(data.frame_wrap_angle_deg?.toString() ?? '')
       const next = {
         'OD-far': emptyMeasure(),
         'OS-far': emptyMeasure(),
@@ -134,6 +144,7 @@ export function PrescriptionFormPage() {
           axis_deg: m.axis_deg?.toString() ?? '',
           addition_dpt: m.addition_dpt?.toString() ?? '',
           dnp_mm: m.dnp_mm?.toString() ?? '',
+          fitting_height_mm: m.fitting_height_mm?.toString() ?? '',
         }
       }
       setMeasures(next)
@@ -172,6 +183,9 @@ export function PrescriptionFormPage() {
           vision_use: visionUse,
           source,
           cylinder_notation: cylinderNotation,
+          vertex_distance_mm: numeric(vertexDistance),
+          pantoscopic_angle_deg: numeric(pantoscopic),
+          frame_wrap_angle_deg: numeric(frameWrap),
           clinical_notes: notes || null,
           status: 'draft',
           supersedes_prescription_id: supersedesId,
@@ -190,8 +204,13 @@ export function PrescriptionFormPage() {
             const cylinder = numeric(m.cylinder_dpt)
             const addition = numeric(m.addition_dpt)
             const dnp = numeric(m.dnp_mm)
+            const height = numeric(m.fitting_height_mm)
             if (
-              sphere === null && cylinder === null && addition === null && dnp === null
+              sphere === null &&
+              cylinder === null &&
+              addition === null &&
+              dnp === null &&
+              height === null
             ) {
               return null
             }
@@ -204,6 +223,7 @@ export function PrescriptionFormPage() {
               axis_deg: numeric(m.axis_deg),
               addition_dpt: addition,
               dnp_mm: dnp,
+              fitting_height_mm: height,
             }
           })
           .filter((row): row is NonNullable<typeof row> => row !== null),
@@ -438,11 +458,12 @@ export function PrescriptionFormPage() {
                         <td className="px-3 py-3">
                           <Input
                             className="tnum w-24 text-center"
-                            value=""
-                            disabled
-                            placeholder="—"
-                            title="Altura de montagem é medida na armação escolhida: ela é registrada na O.S., não na receita."
-                            readOnly
+                            inputMode="decimal"
+                            placeholder="22,0"
+                            value={measure.fitting_height_mm}
+                            onChange={(e) =>
+                              setMeasure(eye, 'far', 'fitting_height_mm', e.target.value)
+                            }
                           />
                         </td>
                       </tr>
@@ -499,6 +520,61 @@ export function PrescriptionFormPage() {
           <Card
             title={
               <span className="flex items-center gap-2 text-sm font-semibold text-fg">
+                <IconLayers className="size-4 text-brand-600" />
+                Medidas de adaptação
+              </span>
+            }
+          >
+            <p className="mb-3 -mt-1 text-xs text-fg-subtle">
+              O que o prescritor indicou para a adaptação. A medida tirada na armação
+              escolhida continua sendo registrada na O.S. e pode ser diferente desta.
+            </p>
+            <div className="grid grid-cols-12 gap-3">
+              <Field
+                label="Distância vértice (mm)"
+                className="col-span-12 sm:col-span-4"
+                hint="Em que distância a refração foi medida."
+              >
+                <Input
+                  className="tnum"
+                  inputMode="decimal"
+                  placeholder="12,0"
+                  value={vertexDistance}
+                  onChange={(e) => setVertexDistance(e.target.value)}
+                />
+              </Field>
+              <Field
+                label="Ângulo pantoscópico (°)"
+                className="col-span-12 sm:col-span-4"
+                hint="Inclinação indicada para a armação."
+              >
+                <Input
+                  className="tnum"
+                  inputMode="decimal"
+                  placeholder="8,0"
+                  value={pantoscopic}
+                  onChange={(e) => setPantoscopic(e.target.value)}
+                />
+              </Field>
+              <Field
+                label="Curva da armação (°)"
+                className="col-span-12 sm:col-span-4"
+                hint="Wrap indicado, quando informado."
+              >
+                <Input
+                  className="tnum"
+                  inputMode="decimal"
+                  placeholder="5,0"
+                  value={frameWrap}
+                  onChange={(e) => setFrameWrap(e.target.value)}
+                />
+              </Field>
+            </div>
+          </Card>
+
+          <Card
+            title={
+              <span className="flex items-center gap-2 text-sm font-semibold text-fg">
                 <IconFile className="size-4 text-brand-600" />
                 Observações clínicas
               </span>
@@ -511,11 +587,6 @@ export function PrescriptionFormPage() {
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Anotações do prescritor, adaptações, queixas e informações relevantes…"
             />
-            <p className="mt-2 text-xs text-fg-subtle">
-              Distância vértice, ângulo pantoscópico e curva da armação são medidas da
-              montagem, não da prescrição: elas entram na O.S., junto com a armação
-              escolhida.
-            </p>
           </Card>
 
           <Alert tone="warning">
