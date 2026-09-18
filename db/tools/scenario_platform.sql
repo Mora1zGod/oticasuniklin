@@ -182,6 +182,57 @@ $$;
 
 commit;
 
+-- =============================================================================
+-- 5. Quem pode trocar a logo de quem (0015)
+-- =============================================================================
+-- A policy do arquivo nao pergunta qual otica esta aberta — o Storage nao
+-- recebe essa informacao. Pergunta de quem e a pasta e quem e voce.
+begin;
+
+do $$
+declare
+  v_dona   uuid := (select id from public.tenants where slug = 'plataforma-uniklin');
+  v_loja_a uuid := (select id from public.tenants where slug = 'tudobom');
+  v_loja_b uuid := (select id from public.tenants where slug = 'boavista');
+begin
+  -- A dona, SEM cabecalho nenhum (e assim que o Storage chega ao banco).
+  perform set_config('request.jwt.claims',
+    json_build_object('sub','11110000-0000-0000-0000-000000000001',
+                      'role','authenticated')::text, true);
+  perform set_config('request.headers', '{}', true);
+
+  if not public.administra_tenant(v_loja_a::text) then
+    raise exception '[5] FALHOU: a dona nao pode trocar a logo da loja que atende';
+  end if;
+  if not public.administra_tenant(v_dona::text) then
+    raise exception '[5] FALHOU: a dona nao pode trocar a propria logo';
+  end if;
+
+  -- Um gerente que existe so na loja A.
+  insert into public.app_users (auth_user_id, tenant_id, full_name, email, is_tenant_admin)
+  values ('11110000-0000-0000-0000-000000000002', v_loja_a,
+          'Gerente Tudo Bom', 'gerente@tudobom.com', true);
+
+  perform set_config('request.jwt.claims',
+    json_build_object('sub','11110000-0000-0000-0000-000000000002',
+                      'role','authenticated')::text, true);
+
+  if not public.administra_tenant(v_loja_a::text) then
+    raise exception '[5] FALHOU: o gerente nao pode trocar a logo da propria loja';
+  end if;
+  if public.administra_tenant(v_loja_b::text) then
+    raise exception '[5] FALHOU: o gerente alcancou a pasta de OUTRA loja';
+  end if;
+  if public.administra_tenant(v_dona::text) then
+    raise exception '[5] FALHOU: o gerente alcancou a pasta da dona da plataforma';
+  end if;
+
+  raise notice '[5] OK — a dona troca a logo das lojas que atende; a loja so a dela';
+end;
+$$;
+
+rollback;
+
 -- Encerra o cenario sem deixar as identidades de teste para tras.
 begin;
 select set_config('request.jwt.claims', null, true);
