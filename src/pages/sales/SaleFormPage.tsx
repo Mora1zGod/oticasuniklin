@@ -33,6 +33,7 @@ import {
 } from '@/components/ui/icons'
 import { CustomerPicker } from '@/components/CustomerPicker'
 import { describeError } from '@/lib/errors'
+import { clearDraft, useDraft } from '@/lib/draft'
 import {
   digitsOnly,
   formatDocument,
@@ -87,6 +88,41 @@ export function SaleFormPage() {
   const [notes, setNotes] = useState('')
   const [productTerm, setProductTerm] = useState('')
   const [error, setError] = useState<string | null>(null)
+
+  // ----------------------------- Rascunho -----------------------------
+  // Montar uma venda leva tempo: cliente, itens, descontos, formas de
+  // pagamento. Se a aba recarregar no meio, isso tudo volta.
+  const draftKey = `uniklin.draft.venda.${ctx.tenant_id}`
+  const { recovered, discard } = useDraft({
+    key: draftKey,
+    // A busca de produto e a mensagem de erro ficam de fora: são da tela, não
+    // da venda.
+    value: { anonymous, customerId, invoiceDocument, salespersonId, items, payments, notes },
+    restore: (saved) => {
+      setAnonymous(saved.anonymous)
+      setCustomerId(saved.customerId)
+      setInvoiceDocument(saved.invoiceDocument)
+      setSalespersonId(saved.salespersonId)
+      setItems(saved.items)
+      setPayments(saved.payments)
+      setNotes(saved.notes)
+    },
+    enabled:
+      items.length > 0 ||
+      payments.length > 0 ||
+      Boolean(customerId) ||
+      Boolean(invoiceDocument) ||
+      Boolean(notes),
+    reset: () => {
+      setAnonymous(false)
+      setCustomerId('')
+      setInvoiceDocument('')
+      setSalespersonId(ctx.is_salesperson ? ctx.app_user_id : '')
+      setItems([])
+      setPayments([])
+      setNotes('')
+    },
+  })
 
   const products = useQuery({
     queryKey: ['sale-products', ctx.tenant_id],
@@ -299,7 +335,10 @@ export function SaleFormPage() {
 
       return sale.id
     },
-    onSuccess: (id) => navigate(`/comercial/vendas/${id}`),
+    onSuccess: (id) => {
+      clearDraft(draftKey)
+      navigate(`/comercial/vendas/${id}`)
+    },
     onError: (err) => setError(describeError(err)),
   })
 
@@ -365,6 +404,19 @@ export function SaleFormPage() {
           <Alert>{error}</Alert>
         </div>
       )}
+
+      {recovered && (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-card border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200">
+          <span>{
+            'Recuperamos a venda que você estava montando antes da página recarregar. ' +
+            'Confira os itens e os pagamentos antes de finalizar.'
+          }</span>
+          <Button variant="ghost" onClick={discard}>
+            Descartar e começar do zero
+          </Button>
+        </div>
+      )}
+
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,23rem)]">
         {/* ------------------------------ Esquerda ------------------------------ */}

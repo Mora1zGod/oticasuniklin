@@ -24,6 +24,7 @@ import {
   IconLayers,
 } from '@/components/ui/icons'
 import { describeError } from '@/lib/errors'
+import { clearDraft, useDraft } from '@/lib/draft'
 import { formatDate, formatDocument, formatPhone, today } from '@/lib/format'
 import { CustomerPicker } from '@/components/CustomerPicker'
 
@@ -94,6 +95,58 @@ export function PrescriptionFormPage() {
     'OS-far': emptyMeasure(),
     'OD-near': emptyMeasure(),
     'OS-near': emptyMeasure(),
+  })
+
+  // ----------------------------- Rascunho -----------------------------
+  // Transcrever uma receita é digitar número por número, olho por olho. Se a
+  // aba recarregar no meio, o operador não recomeça: os valores voltam.
+  //
+  // A chave separa a receita nova da nova versão de uma existente — são duas
+  // intenções diferentes, e o rascunho de uma não pode vazar na outra.
+  const draftKey = `uniklin.draft.receita.${ctx.tenant_id}.${supersedesId ?? 'nova'}`
+  const preenchida = Object.values(measures).some((m) =>
+    Object.values(m).some((v) => v.trim() !== ''),
+  )
+  const { recovered, discard } = useDraft({
+    key: draftKey,
+    value: {
+      customerId, prescriberId, issuedAt, validUntil, visionUse, source,
+      cylinderNotation, notes, vertexDistance, pantoscopic, frameWrap, measures,
+    },
+    restore: (saved) => {
+      setCustomerId(saved.customerId)
+      setPrescriberId(saved.prescriberId)
+      setIssuedAt(saved.issuedAt)
+      setValidUntil(saved.validUntil)
+      setVisionUse(saved.visionUse)
+      setSource(saved.source)
+      setCylinderNotation(saved.cylinderNotation)
+      setNotes(saved.notes)
+      setVertexDistance(saved.vertexDistance)
+      setPantoscopic(saved.pantoscopic)
+      setFrameWrap(saved.frameWrap)
+      setMeasures(saved.measures)
+    },
+    enabled: preenchida || Boolean(customerId) || Boolean(prescriberId) || Boolean(notes),
+    reset: () => {
+      setCustomerId('')
+      setPrescriberId('')
+      setIssuedAt(today())
+      setValidUntil('')
+      setVisionUse('far')
+      setSource('external_document')
+      setCylinderNotation('negative')
+      setNotes('')
+      setVertexDistance('')
+      setPantoscopic('')
+      setFrameWrap('')
+      setMeasures({
+        'OD-far': emptyMeasure(),
+        'OS-far': emptyMeasure(),
+        'OD-near': emptyMeasure(),
+        'OS-near': emptyMeasure(),
+      })
+    },
   })
 
   const needsAddition = visionUse === 'multifocal' || visionUse === 'bifocal' || visionUse === 'occupational'
@@ -245,7 +298,10 @@ export function PrescriptionFormPage() {
 
       return created.id
     },
-    onSuccess: (id) => navigate(`/optica/receitas/${id}`),
+    onSuccess: (id) => {
+      clearDraft(draftKey)
+      navigate(`/optica/receitas/${id}`)
+    },
     onError: (err) => setError(describeError(err)),
   })
 
@@ -287,6 +343,19 @@ export function PrescriptionFormPage() {
           <Alert>{error}</Alert>
         </div>
       )}
+
+      {recovered && (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-card border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200">
+          <span>{
+            'Recuperamos a receita que você estava transcrevendo antes da página ' +
+            'recarregar. Confira os valores de cada olho antes de emitir.'
+          }</span>
+          <Button variant="ghost" onClick={discard}>
+            Descartar e começar do zero
+          </Button>
+        </div>
+      )}
+
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,21rem)]">
         {/* ------------------------------ Esquerda ------------------------------ */}
