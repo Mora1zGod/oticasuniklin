@@ -1,50 +1,17 @@
 import { useMemo, useState, type ReactNode } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { CepField } from './CepField'
+import { useQuery } from '@tanstack/react-query'
 import { DataTable, type Column } from './DataTable'
-import { Modal } from './ui/Modal'
-import {
-  Alert,
-  Button,
-  Card,
-  Checkbox,
-  Field,
-  Input,
-  PageHeader,
-  Select,
-  Textarea,
-} from './ui/primitives'
-import { blanksToNull, looseFrom, type Row, type TableName } from '@/lib/db'
-import { describeError } from '@/lib/errors'
-import { useAppContext } from '@/auth/SessionProvider'
+import { useRecordForm, type RecordField } from './RecordForm'
+import { Button, Card, Input, PageHeader } from './ui/primitives'
+import { looseFrom, type Row, type TableName } from '@/lib/db'
 
 /**
- * Descreve um campo do formulário de cadastro. É o que permite que os cadastros
- * simples (categorias, marcas, laboratórios, formas de pagamento, prescritores…)
- * existam sem uma tela artesanal cada.
+ * Campo do formulário de cadastro. É o que permite que os cadastros simples
+ * (categorias, marcas, formas de pagamento…) existam sem uma tela artesanal
+ * cada. O desenho do campo mora em `RecordForm`, que esta tela e a de catálogo
+ * compartilham.
  */
-export type CrudField = {
-  name: string
-  label: string
-  type?:
-    | 'text'
-    | 'number'
-    | 'date'
-    | 'checkbox'
-    | 'select'
-    | 'textarea'
-    | 'email'
-    /** CEP que preenche logradouro, bairro, cidade e UF do próprio formulário. */
-    | 'cep'
-  required?: boolean
-  hint?: string
-  placeholder?: string
-  options?: { value: string; label: string }[]
-  /** Largura em colunas da grade de 12. */
-  span?: number
-  step?: string
-  defaultValue?: string | number | boolean | null
-}
+export type CrudField = RecordField
 
 export type CrudConfig<T extends TableName> = {
   table: T
@@ -66,50 +33,16 @@ export type CrudConfig<T extends TableName> = {
   extraActions?: ReactNode
 }
 
-type FormState = Record<string, string | number | boolean | null>
-
-/**
- * O Tailwind gera classe a partir de string literal no código: `col-span-${n}`
- * não existiria no CSS final. Por isso o mapa é estático.
- */
-const SPAN_CLASS: Record<number, string> = {
-  2: 'sm:col-span-2',
-  3: 'sm:col-span-3',
-  4: 'sm:col-span-4',
-  6: 'sm:col-span-6',
-  8: 'sm:col-span-8',
-  9: 'sm:col-span-9',
-  12: 'sm:col-span-12',
-}
-
-function initialState(fields: CrudField[], row?: Record<string, unknown>): FormState {
-  const state: FormState = {}
-  for (const field of fields) {
-    const current = row?.[field.name]
-    if (current !== undefined && current !== null) {
-      state[field.name] =
-        typeof current === 'boolean' || typeof current === 'number'
-          ? current
-          : String(current)
-    } else if (row) {
-      state[field.name] = field.type === 'checkbox' ? false : ''
-    } else {
-      state[field.name] = field.defaultValue ?? (field.type === 'checkbox' ? false : '')
-    }
-  }
-  return state
-}
-
 export function CrudPage<T extends TableName>(config: CrudConfig<T>) {
-  const ctx = useAppContext()
-  const queryClient = useQueryClient()
   const [search, setSearch] = useState('')
-  const [editing, setEditing] = useState<Record<string, unknown> | null>(null)
-  const [creating, setCreating] = useState(false)
-  const [form, setForm] = useState<FormState>({})
-  const [error, setError] = useState<string | null>(null)
-
   const canWrite = config.canWrite ?? true
+
+  const form = useRecordForm({
+    table: config.table,
+    singular: config.singular,
+    fields: config.fields,
+    withTenant: config.withTenant !== false,
+  })
   const queryKey = [config.table, config.filter, search, config.orderBy]
 
   const list = useQuery({
@@ -131,54 +64,6 @@ export function CrudPage<T extends TableName>(config: CrudConfig<T>) {
     },
   })
 
-  const save = useMutation({
-    mutationFn: async (values: FormState) => {
-      const payload = blanksToNull({ ...values }) as Record<string, unknown>
-      for (const field of config.fields) {
-        if (field.type === 'number' && payload[field.name] !== null) {
-          payload[field.name] = Number(payload[field.name])
-        }
-      }
-      if (editing) {
-        const { error: err } = await looseFrom(config.table)
-          .update(payload)
-          .eq('id', String((editing as { id: string }).id))
-        if (err) throw err
-      } else {
-        if (config.withTenant !== false) payload['tenant_id'] = ctx.tenant_id
-        const { error: err } = await looseFrom(config.table).insert(payload)
-        if (err) throw err
-      }
-    },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: [config.table] })
-      closeForm()
-    },
-    onError: (err) => setError(describeError(err)),
-  })
-
-  function openCreate() {
-    setEditing(null)
-    setForm(initialState(config.fields))
-    setError(null)
-    setCreating(true)
-  }
-
-  function openEdit(row: Row<T>) {
-    const record = row as Record<string, unknown>
-    // Linha semeada pela plataforma (tenant_id nulo) é só leitura.
-    if ('tenant_id' in record && record['tenant_id'] === null) return
-    setEditing(record)
-    setForm(initialState(config.fields, record))
-    setError(null)
-  }
-
-  function closeForm() {
-    setCreating(false)
-    setEditing(null)
-    setError(null)
-  }
-
   const columns = useMemo<Column<Row<T>>[]>(() => config.columns, [config.columns])
 
   return (
@@ -189,7 +74,9 @@ export function CrudPage<T extends TableName>(config: CrudConfig<T>) {
         actions={
           <>
             {config.extraActions}
-            {canWrite && <Button onClick={openCreate}>+ {config.singular}</Button>}
+            {canWrite && (
+              <Button onClick={form.openCreate}>+ {config.singular}</Button>
+            )}
           </>
         }
       />
@@ -200,12 +87,14 @@ export function CrudPage<T extends TableName>(config: CrudConfig<T>) {
           config.searchColumn ? (
             <Input
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(event) => setSearch(event.target.value)}
               placeholder="Buscar…"
               className="w-64"
             />
           ) : (
-            <span className="text-sm text-slate-500">{list.data?.length ?? 0} registro(s)</span>
+            <span className="text-sm text-fg-muted">
+              {list.data?.length ?? 0} registro(s)
+            </span>
           )
         }
       >
@@ -214,108 +103,19 @@ export function CrudPage<T extends TableName>(config: CrudConfig<T>) {
           columns={columns}
           loading={list.isLoading}
           rowKey={(row) => String((row as { id: string }).id)}
-          onRowClick={canWrite ? openEdit : undefined}
+          onRowClick={
+            canWrite ? (row) => form.openEdit(row as Record<string, unknown>) : undefined
+          }
           emptyTitle={`Nenhum registro de ${config.title.toLowerCase()}`}
           emptyAction={
-            canWrite ? <Button onClick={openCreate}>+ {config.singular}</Button> : undefined
+            canWrite ? (
+              <Button onClick={form.openCreate}>+ {config.singular}</Button>
+            ) : undefined
           }
         />
       </Card>
 
-      <Modal
-        open={creating || editing !== null}
-        title={editing ? `Editar ${config.singular}` : `Novo ${config.singular}`}
-        onClose={closeForm}
-        footer={
-          <>
-            <Button variant="secondary" onClick={closeForm}>
-              Cancelar
-            </Button>
-            <Button onClick={() => save.mutate(form)} disabled={save.isPending}>
-              {save.isPending ? 'Salvando…' : 'Salvar'}
-            </Button>
-          </>
-        }
-      >
-        {error && (
-          <div className="mb-3">
-            <Alert>{error}</Alert>
-          </div>
-        )}
-        <div className="grid grid-cols-12 gap-3">
-          {config.fields.map((field) => {
-            const value = form[field.name]
-            const set = (v: string | number | boolean) =>
-              setForm((prev) => ({ ...prev, [field.name]: v }))
-
-            // O CEP escreve em outros campos do mesmo formulário, então não
-            // cabe no molde genérico abaixo.
-            if (field.type === 'cep') {
-              return (
-                <CepField
-                  key={field.name}
-                  label={field.label}
-                  className={`col-span-12 ${SPAN_CLASS[field.span ?? 6] ?? 'sm:col-span-6'}`}
-                  value={String(value ?? '')}
-                  onChange={set}
-                  onFound={(found) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      [field.name]: found.zipCode,
-                      street: found.street || prev['street'] || '',
-                      district: found.district || prev['district'] || '',
-                      city: found.city || prev['city'] || '',
-                      state_code: found.stateCode || prev['state_code'] || '',
-                    }))
-                  }
-                />
-              )
-            }
-
-            return (
-              <Field
-                key={field.name}
-                label={field.type === 'checkbox' ? undefined : field.label}
-                hint={field.hint}
-                required={field.required}
-                className={`col-span-12 ${SPAN_CLASS[field.span ?? 6] ?? 'sm:col-span-6'}`}
-              >
-                {field.type === 'checkbox' ? (
-                  <Checkbox
-                    label={field.label}
-                    checked={Boolean(value)}
-                    onChange={(e) => set(e.target.checked)}
-                  />
-                ) : field.type === 'select' ? (
-                  <Select value={String(value ?? '')} onChange={(e) => set(e.target.value)}>
-                    <option value="">—</option>
-                    {field.options?.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </Select>
-                ) : field.type === 'textarea' ? (
-                  <Textarea
-                    value={String(value ?? '')}
-                    onChange={(e) => set(e.target.value)}
-                    placeholder={field.placeholder}
-                  />
-                ) : (
-                  <Input
-                    type={field.type ?? 'text'}
-                    step={field.step}
-                    value={String(value ?? '')}
-                    onChange={(e) => set(e.target.value)}
-                    placeholder={field.placeholder}
-                    required={field.required}
-                  />
-                )}
-              </Field>
-            )
-          })}
-        </div>
-      </Modal>
+      {form.modal}
     </>
   )
 }
