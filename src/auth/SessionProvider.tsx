@@ -9,6 +9,7 @@ import {
 } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
+import { resolveTenantBase } from '@/branding/branding'
 
 export type SessionBranch = {
   id: string
@@ -71,6 +72,15 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   /** De quem é o contexto que já está carregado. */
   const loadedFor = useRef<string | null>(null)
 
+  /**
+   * Já tentamos abrir a ótica que o endereço pede?
+   *
+   * O ajuste recarrega o contexto, e o contexto recarregado passaria por aqui
+   * de novo. Uma tentativa por sessão basta: se não resolveu, o aviso da tela
+   * conta o que houve, em vez de o app girar em falso.
+   */
+  const jaAjustouOtica = useRef(false)
+
   async function loadContext(session: Session | null) {
     loadedFor.current = session?.user.id ?? null
     if (!session) {
@@ -96,7 +106,30 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         // As óticas do login: uma para a loja cliente, várias para quem opera
         // a plataforma. O banco devolve só o que a pessoa já podia acessar.
         const { data: mine } = await supabase.rpc('my_tenants')
-        setTenants((mine ?? []) as TenantAccess[])
+        const acessos = (mine ?? []) as TenantAccess[]
+        setTenants(acessos)
+
+        // O endereço pede uma ótica, e a sessão abriu outra.
+        //
+        // Quem decide isso é o banco, e ele tem duas fontes: o cabeçalho da
+        // requisição e a escolha guardada (0016). O cabeçalho às vezes não
+        // chega — se perde entre o navegador e o banco, e some de vez dentro do
+        // Storage. Então, quando o endereço aponta para uma ótica que a pessoa
+        // realmente alcança, gravamos a escolha e recarregamos: a partir daí
+        // vale em qualquer serviço, sem depender de transporte.
+        const pedido = resolveTenantBase().slug
+        const alvo = pedido ? acessos.find((t) => t.slug === pedido) : undefined
+
+        if (alvo && alvo.tenant_id !== ctx.tenant_id && !jaAjustouOtica.current) {
+          jaAjustouOtica.current = true
+          const { error: trocaErro } = await supabase.rpc('set_active_tenant', {
+            p_tenant_id: alvo.tenant_id,
+          })
+          if (!trocaErro) {
+            await loadContext(session)
+            return
+          }
+        }
       }
     }
     setLoading(false)

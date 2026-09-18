@@ -16,6 +16,33 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      /** Em qual otica cada login esta trabalhando agora. Nao concede acesso: so registra uma escolha entre as oticas que a pessoa ja alcanca. */
+      active_tenant: {
+        Row: {
+          auth_user_id: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          auth_user_id: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          auth_user_id?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'active_tenant_tenant_id_fkey'
+            isOneToOne: false
+            columns: ['tenant_id']
+            referencedRelation: 'tenants'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       app_users: {
         Row: {
           id: string
@@ -4770,6 +4797,11 @@ export type Database = {
       }
     }
     Functions: {
+      /** administra_tenant(p_tenant_id text) returns boolean */
+      administra_tenant: {
+        Args: { p_tenant_id: string }
+        Returns: boolean
+      }
       /** bootstrap_tenant(p_slug text, p_legal_name text, p_trade_name text, p_branch_name text DEFAULT 'Matriz'::text, p_admin_name text DEFAULT NULL::text, p_tax_document text DEFAULT NULL::text, p_auth_user_id uuid DEFAULT NULL::uuid) returns uuid */
       bootstrap_tenant: {
         Args: { p_slug: string; p_legal_name: string; p_trade_name: string; p_branch_name?: string; p_admin_name?: string | null; p_tax_document?: string | null; p_auth_user_id?: string | null }
@@ -4872,6 +4904,11 @@ export type Database = {
       }
       /** seed_tenant_roles(p_tenant_id uuid) returns void */
       seed_tenant_roles: {
+        Args: { p_tenant_id: string }
+        Returns: void
+      }
+      /** set_active_tenant(p_tenant_id uuid) returns void */
+      set_active_tenant: {
         Args: { p_tenant_id: string }
         Returns: void
       }

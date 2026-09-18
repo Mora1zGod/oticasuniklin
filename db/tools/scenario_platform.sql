@@ -233,6 +233,78 @@ $$;
 
 rollback;
 
+-- =============================================================================
+-- 6. A otica aberta sem cabecalho nenhum (0016)
+-- =============================================================================
+-- E o caso do Storage e o da producao em que o cabecalho se perde: a escolha
+-- guardada tem que levar a pessoa para a loja certa, e continuar recusando
+-- otica em que ela nao tem cadastro.
+begin;
+
+do $$
+declare
+  v_loja_a uuid := (select id from public.tenants where slug = 'tudobom');
+  v_slug   text;
+begin
+  perform set_config('request.jwt.claims',
+    json_build_object('sub','11110000-0000-0000-0000-000000000001',
+                      'role','authenticated')::text, true);
+  perform set_config('request.headers', '{}', true);
+
+  -- Sem escolha e sem cabecalho: a propria otica.
+  select t.slug into v_slug from public.tenants t where t.id = public.current_tenant_id();
+  if v_slug <> 'plataforma-uniklin' then
+    raise exception '[6] FALHOU: sem escolha deveria abrir a otica da dona, abriu %', v_slug;
+  end if;
+
+  -- Escolheu a loja: sem cabecalho nenhum, e a loja que abre.
+  perform public.set_active_tenant(v_loja_a);
+  select t.slug into v_slug from public.tenants t where t.id = public.current_tenant_id();
+  if v_slug <> 'tudobom' then
+    raise exception '[6] FALHOU: a escolha guardada nao levou para a loja, abriu %', v_slug;
+  end if;
+
+  -- E o arquivo tambem: e o mesmo caminho que o Storage percorre.
+  if not public.administra_tenant(v_loja_a::text) then
+    raise exception '[6] FALHOU: a dona perdeu a pasta da loja que escolheu';
+  end if;
+
+  raise notice '[6] OK — sem cabecalho, a escolha guardada abre a loja certa';
+end;
+$$;
+
+rollback;
+
+-- =============================================================================
+-- 7. Escolher uma otica alheia continua sendo recusado
+-- =============================================================================
+begin;
+
+insert into public.app_users (auth_user_id, tenant_id, full_name, email, is_tenant_admin)
+values ('11110000-0000-0000-0000-000000000002',
+        (select id from public.tenants where slug = 'tudobom'),
+        'Gerente Tudo Bom', 'gerente@tudobom.com', true);
+
+do $$
+begin
+  perform set_config('request.jwt.claims',
+    json_build_object('sub','11110000-0000-0000-0000-000000000002',
+                      'role','authenticated')::text, true);
+  perform set_config('request.headers', '{}', true);
+
+  begin
+    perform public.set_active_tenant((select id from public.tenants where slug = 'boavista'));
+    raise exception '[7] FALHOU: o gerente escolheu uma otica em que nao tem cadastro';
+  exception when insufficient_privilege then
+    null;
+  end;
+
+  raise notice '[7] OK — escolher otica alheia continua recusado';
+end;
+$$;
+
+rollback;
+
 -- Encerra o cenario sem deixar as identidades de teste para tras.
 begin;
 select set_config('request.jwt.claims', null, true);
