@@ -31,6 +31,39 @@ begin
 end;
 $$;
 
+-- -----------------------------------------------------------------------------
+-- [1b] Com sessao de gente de verdade, ninguem cria otica no nome do vizinho
+-- -----------------------------------------------------------------------------
+do $$
+declare
+  v_outro uuid := '99999999-9999-9999-9999-999999999999';
+begin
+  insert into auth.users (id, email) values (v_outro, 'vizinho@exemplo.com')
+    on conflict (id) do nothing;
+
+  perform set_config('request.jwt.claims',
+    json_build_object('sub', '11111111-1111-1111-1111-111111111111',
+                      'role', 'authenticated')::text, true);
+
+  begin
+    perform public.bootstrap_tenant('otica-do-vizinho', 'Vizinho LTDA', 'Otica do Vizinho',
+                                    'Matriz', 'Vizinho', null, v_outro);
+    raise exception '[1b] FALHOU: criou uma otica no nome de outra pessoa';
+  exception when insufficient_privilege then
+    null;
+  end;
+
+  perform set_config('request.jwt.claims', null, true);
+  raise notice '[1b] OK — com sessao, so da para criar a propria otica';
+end;
+$$;
+
+do $$
+begin
+  null;
+end;
+$$;
+
 -- [2] a otica nasce
 -- psql nao interpola :'var' dentro de bloco dollar-quoted; o id trafega em
 -- tabela temporaria de sessao.
